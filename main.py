@@ -1,5 +1,6 @@
 import matplotlib
 from Polygon import Polygon, Point
+import matplotlib.pyplot as plt
 
 
 def load_input(file_name):
@@ -39,6 +40,11 @@ def visualize(P):
     :return:
     """
     print(P.E)
+    x = [p.x for p in P.V]
+    y = [p.y for p in P.V]
+    plt.fill(x, y, 'b')
+    plt.grid(True)
+    plt.show()
 
 
 if __name__ == '__main__':

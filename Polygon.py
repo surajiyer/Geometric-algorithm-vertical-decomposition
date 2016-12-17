@@ -3,6 +3,9 @@ from LineSegment import LineSegment
 
 
 class Polygon:
+    """
+    Class representing a polygon with a set of points and edges between them.
+    """
     def __init__(self, points):
         assert isinstance(points, list) and all(isinstance(p, Point) for p in points)
         self.V = points
