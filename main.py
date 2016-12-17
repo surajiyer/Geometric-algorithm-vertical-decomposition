@@ -1,5 +1,7 @@
 import matplotlib
 from Polygon import Polygon, Point
+from Trapezoid import Trapezoid
+from LineSegment import LineSegment
 import matplotlib.pyplot as plt
 
 
@@ -48,6 +50,10 @@ def visualize(P):
 
 
 if __name__ == '__main__':
-    P = load_input('test_0.txt')
+    #testing trapezoid initialization
+    T = Trapezoid(Point(2, 3), Point(3, 2), LineSegment(Point(4, 3), Point(3, 3)),
+                  LineSegment(Point(1, 5), Point(6, 7)), [])
+    """P = load_input('test_0.txt')
     trapezoidal_map = decompose(P)
-    visualize(trapezoidal_map)
+    visualize(trapezoidal_map)"""
+
