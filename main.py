@@ -1,7 +1,7 @@
 import matplotlib
 from Polygon import Polygon, Point
-from Trapezoid import Trapezoid
 from LineSegment import LineSegment
+from RandomizedIncrementalConstruction import RandomizedIncrementalConstruction
 import matplotlib.pyplot as plt
 
 
@@ -19,21 +19,13 @@ def load_input(file_name):
         for i in range(n):
             line = file.readline()
             line = [int(l) for l in line.split()]
-            V.append(Point(line[0], line[1]))
+            #We add 1 to every value such that we can always make a bounding
+            #box around the coordinates s.t. the bounding box does not intersect
+            #with for example a point (0, 0)
+            V.append(Point(line[0] + 1, line[1] + 1))
         P = Polygon(V)
 
         return P
-
-
-def decompose(P):
-    """
-    Create a vertical decomposition of a simple polygon
-    :param P: A simple polygon
-    :return: Trapezoid map
-    """
-    print(P.V)
-    return P
-
 
 def visualize(P):
     """
@@ -50,17 +42,26 @@ def visualize(P):
 
 
 if __name__ == '__main__':
+    #make polygon based on input
+    P = load_input('test_0.txt')
+    #Initialize algorithm (also computes the map already)
+    R = RandomizedIncrementalConstruction(P)
+    T = R.getTrapezoidalMap()
+    print(T)
+    #visualize(T)
+
+    """
+    #testing aboveLine method
     P = Point(1,0)
     L = LineSegment(Point(5,5), Point(1,1))
     L.aboveLine(P)
 
-    """
     #testing trapezoid initialization
     T = Trapezoid(Point(2, 3), Point(3, 2), LineSegment(Point(4, 3), Point(3, 3)),
                   LineSegment(Point(1, 5), Point(6, 7)), [])
     print (T)
 
-    P = load_input('test_0.txt')
     trapezoidal_map = decompose(P)
-    visualize(trapezoidal_map)"""
+    visualize(trapezoidal_map)
+    """
 
