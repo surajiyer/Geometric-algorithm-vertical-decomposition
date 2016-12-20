@@ -16,11 +16,8 @@ class Trapezoid:
         self.bottom = bottom
 
         assert isinstance(neighbors, list) and all(isinstance(n, Trapezoid) for n in neighbors)
-        assert len(neighbors) <= 4, 'Maximum number of neighbors for a trapezoid is 4'
+        # assert len(neighbors) <= 4, 'Maximum number of neighbors for a trapezoid is 4'
         self.neighbors = neighbors
-
-        print("<Trapezoid leftp:%s rightp:%s top:%s bottom:%s neighbors:%s>" % (
-        str(self.leftp), str(self.rightp), str(self.top), str(self.bottom), str(self.neighbors)))
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
