@@ -7,8 +7,13 @@ class LineSegment(GraphObject):
     """
     def __init__(self, p, q):
         assert isinstance(p, Point) and isinstance(q, Point)
-        self.p = p
-        self.q = q
+        #we want to make sure p is always the left point
+        if p.get_x() <= q.get_x():
+            self.p = p
+            self.q = q
+        else:
+            self.p = q
+            self.q = p
 
     @staticmethod
     def on_segment(p, q, r):
@@ -40,6 +45,28 @@ class LineSegment(GraphObject):
 
         # -1 for clockwise, 1 for counter-clockwise
         return -1 if val > 0 else 1
+
+    def aboveLine(self, point) -> bool:
+        """
+        Return true if point lies above line segment 'self'.
+        http://stackoverflow.com/questions/3838319/how-can-i-check-if-a-point-is-below-a-line-or-not
+        :param point:
+        :return:
+        """
+        assert isinstance(point, Point)
+        v1x = self.q.get_x() - self.p.get_x() # Vector 1.x
+        v1y = self.q.get_y() - self.p.get_y() # Vector 1.y
+        v2x = self.q.get_x() - point.get_x() # Vector 2.x
+        v2y = self.q.get_y() - point.get_y() # Vector 2.y
+        xp = v1x * v2y - v1y * v2x  # Cross product
+        #when its larger than zero, return false
+        #so we assume that if it lies on the line that it is "above"
+        if xp > 0:
+            print('Point below line')
+            return False
+        else:
+            print('Point above line')
+            return True
 
     def intersects(self, other) -> bool:
         """
