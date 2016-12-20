@@ -1,7 +1,7 @@
 from Point import Point
+from GraphObject import GraphObject
 
-
-class LineSegment:
+class LineSegment(GraphObject):
     """
     Class to represent a line segment with 2 endpoints
     """

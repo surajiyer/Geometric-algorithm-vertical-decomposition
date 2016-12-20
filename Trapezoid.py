@@ -1,7 +1,8 @@
 from Point import Point
 from LineSegment import LineSegment
+from GraphObject import GraphObject
 
-class Trapezoid:
+class Trapezoid(GraphObject):
     """
     Class representing a trapezoid with top, bottom, leftp and rightp
     (2 line segments and 2 endpoints respectively)
