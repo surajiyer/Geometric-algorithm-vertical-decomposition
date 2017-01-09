@@ -1,3 +1,4 @@
+import math
 from Point import Point
 from GraphObject import GraphObject
 
@@ -8,12 +9,17 @@ class LineSegment(GraphObject):
     def __init__(self, p, q):
         assert isinstance(p, Point) and isinstance(q, Point)
         #we want to make sure p is always the left point
-        if p.get_x() <= q.get_x():
+        if p.x <= q.x:
             self.p = p
             self.q = q
         else:
             self.p = q
             self.q = p
+
+        self.len = math.sqrt(math.pow(p.x - q.x, 2) + math.pow(p.y - q.y, 2))
+
+    def getLength(self):
+        return self.len
 
     @staticmethod
     def on_segment(p, q, r):
@@ -54,10 +60,10 @@ class LineSegment(GraphObject):
         :return:
         """
         assert isinstance(point, Point)
-        v1x = self.q.get_x() - self.p.get_x() # Vector 1.x
-        v1y = self.q.get_y() - self.p.get_y() # Vector 1.y
-        v2x = self.q.get_x() - point.get_x() # Vector 2.x
-        v2y = self.q.get_y() - point.get_y() # Vector 2.y
+        v1x = self.q.x - self.p.x # Vector 1.x
+        v1y = self.q.y - self.p.y # Vector 1.y
+        v2x = self.q.x - point.x # Vector 2.x
+        v2y = self.q.y - point.y # Vector 2.y
         xp = v1x * v2y - v1y * v2x  # Cross product
         #when its larger than zero, return false
         #so we assume that if it lies on the line that it is "above"

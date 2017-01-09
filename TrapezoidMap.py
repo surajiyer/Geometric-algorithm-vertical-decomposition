@@ -11,6 +11,10 @@ class TrapezoidMap:
     def addTrapezoid(self, trapezoid):
         assert isinstance(trapezoid, Trapezoid)
         self.trapezoids.append(trapezoid)
+        print ("add:" , self.trapezoids)
+
+    def deleteTrapezoidFromMap(self, trapezoid):
+        self.trapezoids.remove(trapezoid)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__

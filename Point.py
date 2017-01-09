@@ -12,12 +12,12 @@ class Point(GraphObject):
         return self._y
 
     def set_x(self, x):
-        assert isinstance(x, int) and x >= 0, \
+        assert isinstance(float(x), float) and x >= 0.0, \
             'Points must have positive integer x-coordinate: %d' % x
         self._x = x
 
     def set_y(self, y):
-        assert isinstance(y, int) and y >= 0, \
+        assert isinstance(float(y), float) and y >= 0.0, \
             'Points must have positive integer y-coordinate: %d' % y
         self._y = y
 
