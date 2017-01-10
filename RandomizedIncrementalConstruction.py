@@ -34,22 +34,36 @@ class RandomizedIncrementalConstruction:
 
         # p and q lie in the same trapezoid
         if pNode.graphObject == qNode.graphObject:
-            # we have three cases here
-            if pExisted and qExisted:
-                # replace the trapezoid node with a y-node
-                pNode.graphObject = lineSegment
-                # TODO: fix correct neighbor initialization
-                newTopTrapezoid = Trapezoid(lineSegment.p, lineSegment.q, pNode.graphObject.top, lineSegment, [])
-                newBottomTrapezoid = Trapezoid(lineSegment.p, lineSegment.q, lineSegment, pNode.graphObject.bottom, [])
+            # we always need to split the trapezoid
+            # TODO: fix correct neighbor initialization
+            newTopTrapezoid = Trapezoid(lineSegment.p, lineSegment.q, pNode.graphObject.top, lineSegment, [])
+            newBottomTrapezoid = Trapezoid(lineSegment.p, lineSegment.q, lineSegment, pNode.graphObject.bottom, [])
 
-                pNode.leftChild = DAGNode(newBottomTrapezoid)
-                pNode.rightChild = DAGNode(newTopTrapezoid)
-
-                self.T.addTrapezoid(newTopTrapezoid)
-                self.T.addTrapezoid(newBottomTrapezoid)
+            # make a DAG y-node for these trapezoids with the line segment
+            yNode = DAGNode(lineSegment)
+            yNode.leftChild = DAGNode(newBottomTrapezoid)
+            yNode.rightChild = DAGNode(newTopTrapezoid)
 
             # the trapezoid will be removed from the trapezoidal map
             self.T.deleteTrapezoidFromMap(pNode.graphObject)
+
+            # and add the new ones
+            self.T.addTrapezoid(newTopTrapezoid)
+            self.T.addTrapezoid(newBottomTrapezoid)
+            # then we need to make a trapezoid right of q
+            if not qExisted:
+
+            # then we need to make a trapezoid left of p
+            if not pExisted:
+                # first initialize the new trapezoid
+                # TODO: fix neighbors
+                leftTrapezoid = Trapezoid(pNode.graphObject.leftp, lineSegment.p, pNode.graphObject.top, pNode.graphObject.bottom, [])
+
+                # we replace the trapezoid node with the p node
+                pNode.graphObject = lineSegment.p
+                pNode.leftChild = DAGNode(leftTrapezoid)
+
+
         else:
             # the trapezoids will be removed from the trapezoidal map
             self.T.deleteTrapezoidFromMap(pNode.graphObject)
