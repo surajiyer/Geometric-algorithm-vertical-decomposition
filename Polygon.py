@@ -11,7 +11,7 @@ class Polygon:
         self.V = points
 
         # check if points assume general position
-        assert self.is_general_position, 'Input points must have distinct x-coordinates'
+        # assert self.is_general_position, 'Input points must have distinct x-coordinates'
 
         # create edges
         self.E = []

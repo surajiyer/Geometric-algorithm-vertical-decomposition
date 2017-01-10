@@ -20,9 +20,17 @@ class LineSegment(GraphObject):
             self.q = p
 
         self.len = math.sqrt(math.pow(p.x - q.x, 2) + math.pow(p.y - q.y, 2))
+        self.slope = (q.y - p.y) / (q.x - p.x)
+        self.intercept = p.y - self.slope * p.x
 
     def getLength(self):
         return self.len
+
+    def getSlope(self):
+        return self.slope
+
+    def getIntercept(self):
+        return self.intercept
 
     @staticmethod
     def on_segment(p, q, r):

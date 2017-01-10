@@ -9,7 +9,7 @@ class Trapezoid(GraphObject):
     (2 line segments and 2 endpoints respectively)
     """
 
-    def __init__(self, leftp, rightp, top, bottom, leftneighbors, rightneighbors):
+    def __init__(self, leftp, rightp, top, bottom, leftneighbors, rightneighbors=[]):
         super().__init__()
         assert isinstance(leftp, Point) and isinstance(rightp, Point), 'leftp and/or rightp is not a point'
         self.leftp = leftp
