@@ -1,9 +1,11 @@
 from Trapezoid import Trapezoid
 
+
 class TrapezoidMap:
     """
     Class representing a trapezoidal map with a set of trapezoids
     """
+
     def __init__(self, trapezoids):
         assert isinstance(trapezoids, list) and all(isinstance(n, Trapezoid) for n in trapezoids)
         self.trapezoids = trapezoids
@@ -11,7 +13,6 @@ class TrapezoidMap:
     def addTrapezoid(self, trapezoid):
         assert isinstance(trapezoid, Trapezoid)
         self.trapezoids.append(trapezoid)
-        print ("add:" , self.trapezoids)
 
     def deleteTrapezoidFromMap(self, trapezoid):
         self.trapezoids.remove(trapezoid)

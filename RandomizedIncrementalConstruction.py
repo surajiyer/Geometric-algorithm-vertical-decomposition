@@ -22,6 +22,7 @@ class RandomizedIncrementalConstruction:
 
         # TODO: Add randomization
         for lineSegment in self.polygon.E:
+            print("Map before next insertion:", self.T)
             self.insertLinesegment(lineSegment)
 
     def insertLinesegment(self, lineSegment):
@@ -29,40 +30,62 @@ class RandomizedIncrementalConstruction:
         pNode, pExisted = self.DAG.root.getQueryResult(lineSegment.p, lineSegment, False)
         qNode, qExisted = self.DAG.root.getQueryResult(lineSegment.q, lineSegment, False)
 
-        print("pTrapezoid", pNode.graphObject)
-        print("trapezoid map after query", self.T)
+        print("inserting", lineSegment)
+        print("pNode", pNode.graphObject)
 
         # p and q lie in the same trapezoid
         if pNode.graphObject == qNode.graphObject:
+            containingTrapezoid = pNode.graphObject
             # we always need to split the trapezoid
             # TODO: fix correct neighbor initialization
-            newTopTrapezoid = Trapezoid(lineSegment.p, lineSegment.q, pNode.graphObject.top, lineSegment, [])
-            newBottomTrapezoid = Trapezoid(lineSegment.p, lineSegment.q, lineSegment, pNode.graphObject.bottom, [])
+            newTopTrapezoid = Trapezoid(lineSegment.p, lineSegment.q, containingTrapezoid.top, lineSegment, [])
+            newBottomTrapezoid = Trapezoid(lineSegment.p, lineSegment.q, lineSegment, containingTrapezoid.bottom, [])
 
             # make a DAG y-node for these trapezoids with the line segment
             yNode = DAGNode(lineSegment)
-            yNode.leftChild = DAGNode(newBottomTrapezoid)
-            yNode.rightChild = DAGNode(newTopTrapezoid)
+            yNode.leftchild = DAGNode(newBottomTrapezoid)
+            yNode.rightchild = DAGNode(newTopTrapezoid)
 
             # the trapezoid will be removed from the trapezoidal map
-            self.T.deleteTrapezoidFromMap(pNode.graphObject)
+            print("trying to delete:", containingTrapezoid)
+            self.T.deleteTrapezoidFromMap(containingTrapezoid)
 
             # and add the new ones
             self.T.addTrapezoid(newTopTrapezoid)
             self.T.addTrapezoid(newBottomTrapezoid)
-            # then we need to make a trapezoid right of q
+
+            # then we might need to make a trapezoid right of q
             if not qExisted:
+                # TODO: fix neighbors
+                rightTrapezoid = Trapezoid(lineSegment.q,
+                                           containingTrapezoid.rightp,
+                                           containingTrapezoid.top,
+                                           containingTrapezoid.bottom, [])
+                self.T.addTrapezoid(rightTrapezoid)
+                qXnode = DAGNode(lineSegment.q, yNode, DAGNode(rightTrapezoid))
+
+                # change the pNode to the new qXnode
+                pNode.modify(qXnode)
 
             # then we need to make a trapezoid left of p
             if not pExisted:
                 # first initialize the new trapezoid
                 # TODO: fix neighbors
-                leftTrapezoid = Trapezoid(pNode.graphObject.leftp, lineSegment.p, pNode.graphObject.top, pNode.graphObject.bottom, [])
+                leftTrapezoid = Trapezoid(containingTrapezoid.leftp,
+                                          lineSegment.p,
+                                          containingTrapezoid.top,
+                                          containingTrapezoid.bottom, [])
+                self.T.addTrapezoid(leftTrapezoid)
 
-                # we replace the trapezoid node with the p node
-                pNode.graphObject = lineSegment.p
-                pNode.leftChild = DAGNode(leftTrapezoid)
+                pXnode = DAGNode(lineSegment.p,
+                                 DAGNode(leftTrapezoid),
+                                 qXnode if not qExisted else yNode)
+                pNode.modify(pXnode)
 
+            if qExisted and pExisted:
+                pNode.modify(yNode)
+
+            print("root of DAG after update:", pNode)
 
         else:
             # the trapezoids will be removed from the trapezoidal map

@@ -1,26 +1,37 @@
 import copy
-import math
 from Point import Point
 from LineSegment import LineSegment
 from Trapezoid import Trapezoid
 from GraphObject import GraphObject
 
+
 class DAGNode:
     """
         Class representing a Node in the DAG search structure
     """
-    def __init__(self, graphObject):
+    def __init__(self, graphObject, leftchild=None, rightchild=None):
         assert isinstance(graphObject, GraphObject)
         self.graphObject = graphObject
+        self.leftchild = leftchild
+        self.rightchild = rightchild
 
-    def setLeftChild(self, leftChild):
-        assert isinstance(leftChild, DAGNode)
-        self.leftChild = leftChild
+    def get_leftchild(self):
+        return self._leftchild
 
-    def setRightChild(self, rightChild):
-        assert isinstance(rightChild, DAGNode)
-        self.rightChild = rightChild
+    def set_leftchild(self, leftchild):
+        assert isinstance(leftchild, DAGNode) or leftchild is None, 'leftchild should be a DAGNode!!!!!!!'
+        self._leftchild = leftchild
 
+    leftchild = property(get_leftchild, set_leftchild)
+
+    def get_rightchild(self):
+        return self._rightchild
+
+    def set_rightchild(self, rightchild):
+        assert isinstance(rightchild, DAGNode) or rightchild is None, 'rightchild should be a DAGNode!!!!!!!'
+        self._rightchild = rightchild
+
+    rightchild = property(get_rightchild, set_rightchild)
 
     def getQueryResult(self, queryPoint, lineSegment, queryPointExisted):
         """
@@ -33,18 +44,19 @@ class DAGNode:
 
         # we are an X-Node
         if isinstance(self.graphObject, Point):
-            #if the querypoint is the same as this node
-            if queryPoint == self.graphObject:       
+            # if the querypoint is the same as this node
+            if queryPoint == self.graphObject:
 
-                #we do not want to change the querypoint itself
+                # we do not want to change the querypoint itself
                 newQueryPoint = copy.deepcopy(queryPoint)
                 queryPointExisted = True
 
-                #the querypoint is the left point of the line segment
+                # the querypoint is the left point of the line segment
                 if queryPoint == lineSegment.p:
                     xDiff = (lineSegment.q.x - queryPoint.x)
                     yDiff = (lineSegment.q.y - queryPoint.y)
-                elif queryPoint == lineSegment.q: #the querypoint is the right point of the line segment
+                elif queryPoint == lineSegment.q:
+                    # the querypoint is the right point of the line segment
                     xDiff = (lineSegment.p.x - queryPoint.x)
                     yDiff = (lineSegment.p.y - queryPoint.y)
                 else:
@@ -60,21 +72,34 @@ class DAGNode:
             else:
                 # if querypoint lies (completely) left of this point
                 if queryPoint.x < self.graphObject.x:
-                    return self.leftChild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
+                    return self.leftchild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
                 elif queryPoint.x > self.graphObject.x:
-                    return self.rightChild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
+                    return self.rightchild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
                 else:
-                    return self.rightChild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
-                    #TODO: handle points with same x
+                    return self.rightchild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
+                    # TODO: handle points with same x
 
         elif isinstance(self.graphObject, LineSegment):
-            #we are a Y-Node
+            # we are a Y-Node
             if self.graphObject.aboveLine(queryPoint):
-                return self.rightChild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
+                return self.rightchild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
             else:
-                return self.leftChild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
+                return self.leftchild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
         elif isinstance(self.graphObject, Trapezoid):
-            #we are a leaf
+            # we are a leaf
             return self, queryPointExisted
         else:
             raise ValueError('invalid DAG node!')
+
+    def modify(self, newNode):
+        assert isinstance(newNode, DAGNode)
+        self.graphObject = newNode.graphObject
+        self.leftchild = newNode.leftchild
+        self.rightchild = newNode.rightchild
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    def __repr__(self):
+        return '(leftchild: %s, rightchild: %s, graphObject %s)' % (
+            'YES' if self.leftchild else 'NO', 'YES' if self.rightchild else 'NO', self.graphObject)

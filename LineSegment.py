@@ -2,13 +2,16 @@ import math
 from Point import Point
 from GraphObject import GraphObject
 
+
 class LineSegment(GraphObject):
     """
     Class to represent a line segment with 2 endpoints
     """
+
     def __init__(self, p, q):
+        super().__init__()
         assert isinstance(p, Point) and isinstance(q, Point)
-        #we want to make sure p is always the left point
+        # we want to make sure p is always the left point
         if p.x <= q.x:
             self.p = p
             self.q = q
@@ -60,18 +63,18 @@ class LineSegment(GraphObject):
         :return:
         """
         assert isinstance(point, Point)
-        v1x = self.q.x - self.p.x # Vector 1.x
-        v1y = self.q.y - self.p.y # Vector 1.y
-        v2x = self.q.x - point.x # Vector 2.x
-        v2y = self.q.y - point.y # Vector 2.y
+        v1x = self.q.x - self.p.x  # Vector 1.x
+        v1y = self.q.y - self.p.y  # Vector 1.y
+        v2x = self.q.x - point.x  # Vector 2.x
+        v2y = self.q.y - point.y  # Vector 2.y
         xp = v1x * v2y - v1y * v2x  # Cross product
-        #when its larger than zero, return false
-        #so we assume that if it lies on the line that it is "above"
+        # when its larger than zero, return false
+        # so we assume that if it lies on the line that it is "above"
         if xp > 0:
-            print('Point below line')
+            # print('Point below line')
             return False
         else:
-            print('Point above line')
+            # print('Point above line')
             return True
 
     def intersects(self, other) -> bool:
@@ -84,7 +87,7 @@ class LineSegment(GraphObject):
         assert isinstance(other, LineSegment)
 
         # check if they share an endpoint
-        if self.p == other.p or self.q == other.q\
+        if self.p == other.p or self.q == other.q \
                 or self.p == other.q or self.q == other.p:
             return False
 
