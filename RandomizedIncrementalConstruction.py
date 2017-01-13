@@ -7,17 +7,16 @@ class RandomizedIncrementalConstruction:
     def __init__(self, polygon):
         assert isinstance(polygon, Polygon)
         self.polygon = polygon
+        self.T = TrapezoidMap([])
         self.computeDecomposition()
 
     def getTrapezoidalMap(self) -> TrapezoidMap:
         return self.T
 
-    """
-    Create a vertical decomposition of a simple polygon
-    """
-
     def computeDecomposition(self):
-        self.T = TrapezoidMap([])
+        """
+        Create a vertical decomposition of a simple polygon
+        """
         self.computeBoundingBox()
 
         # TODO: Add randomization
@@ -25,6 +24,10 @@ class RandomizedIncrementalConstruction:
             self.insertLinesegment(lineSegment)
 
     def insertLinesegment(self, lineSegment):
+        # Special case for vertical line segments: just ignore them
+        if lineSegment.p.x == lineSegment.q.x:
+            return
+
         # find the trapezoid in which p and q lie
         pNode, pExisted = self.DAG.root.getQueryResult(lineSegment.p, lineSegment, False)
         qNode, qExisted = self.DAG.root.getQueryResult(lineSegment.q, lineSegment, False)
@@ -32,8 +35,8 @@ class RandomizedIncrementalConstruction:
         # p and q lie in the same trapezoid
         if pNode.graphObject == qNode.graphObject:
             containingTrapezoid = pNode.graphObject
+
             # we always need to split the trapezoid
-            # TODO: fix correct neighbor initialization
             newTopTrapezoid = Trapezoid(lineSegment.p, lineSegment.q, containingTrapezoid.top, lineSegment)
             newBottomTrapezoid = Trapezoid(lineSegment.p, lineSegment.q, lineSegment, containingTrapezoid.bottom)
 
@@ -49,18 +52,26 @@ class RandomizedIncrementalConstruction:
             self.T.addTrapezoid(newTopTrapezoid)
             self.T.addTrapezoid(newBottomTrapezoid)
 
+            # TODO: fix correct neighbor initialization
+
             # then we might need to make a trapezoid right of q
             if not qExisted:
-                rightTrapezoid = Trapezoid(lineSegment.q,
-                                           containingTrapezoid.rightp,
-                                           containingTrapezoid.top,
-                                           containingTrapezoid.bottom)
-
+                if lineSegment.q.x == containingTrapezoid.rightp.x \
+                        and any(len(neighbor.leftneighbors) >= 2 for neighbor in containingTrapezoid.rightneighbors):
+                    rightTrapezoid = Trapezoid(lineSegment.q,
+                                               lineSegment.q,
+                                               containingTrapezoid.top,
+                                               containingTrapezoid.bottom)
+                else:
+                    rightTrapezoid = Trapezoid(lineSegment.q,
+                                               containingTrapezoid.rightp,
+                                               containingTrapezoid.top,
+                                               containingTrapezoid.bottom)
                 rightTrapezoid.setLeftNeighbors([newBottomTrapezoid, newTopTrapezoid])
                 rightTrapezoid.setRightNeighbors(containingTrapezoid.rightneighbors)
 
                 # update right neighbors of containingTrapezoid
-                for neighbor in containingTrapezoid.rightneighbors:
+                for neighbor in rightTrapezoid.rightneighbors:
                     neighbor.setLeftNeighbors([rightTrapezoid])
                     neighbor.leftneighbors.remove(containingTrapezoid)
 
@@ -84,21 +95,26 @@ class RandomizedIncrementalConstruction:
                     neighbor.setLeftNeighbors([newTopTrapezoid])
                     neighbor.leftneighbors.remove(containingTrapezoid)
 
-            # then we need to make a trapezoid left of p
+            # then we need to make a trapezoid le ft of p
             if not pExisted:
                 # first initialize the new trapezoid
-                leftTrapezoid = Trapezoid(containingTrapezoid.leftp,
-                                          lineSegment.p,
-                                          containingTrapezoid.top,
-                                          containingTrapezoid.bottom)
+                if lineSegment.p.x == containingTrapezoid.leftp.x \
+                        and any(len(neighbor.rightneighbors) >= 2 for neighbor in containingTrapezoid.leftneighbors):
+                    leftTrapezoid = Trapezoid(lineSegment.p,
+                                              lineSegment.p,
+                                              containingTrapezoid.top,
+                                              containingTrapezoid.bottom)
+                else:
+                    leftTrapezoid = Trapezoid(containingTrapezoid.leftp,
+                                              lineSegment.p,
+                                              containingTrapezoid.top,
+                                              containingTrapezoid.bottom)
 
                 leftTrapezoid.setLeftNeighbors(containingTrapezoid.leftneighbors)
                 leftTrapezoid.setRightNeighbors([newBottomTrapezoid, newTopTrapezoid])
 
                 # update left neighbors of containingTrapezoid
-                for neighbor in containingTrapezoid.leftneighbors:
-                    print("containing:", containingTrapezoid)
-                    print("neighbor:", neighbor)
+                for neighbor in leftTrapezoid.leftneighbors:
                     neighbor.setRightNeighbors([leftTrapezoid])
                     neighbor.rightneighbors.remove(containingTrapezoid)
 
@@ -128,8 +144,13 @@ class RandomizedIncrementalConstruction:
 
         else:
             # the trapezoids will be removed from the trapezoidal map
+            print(lineSegment)
+            print(pNode)
+            print(qNode)
             self.T.deleteTrapezoidFromMap(pNode.graphObject)
             self.T.deleteTrapezoidFromMap(qNode.graphObject)
+
+            # TODO: fix intersecting trapezoids case
 
     def computeBoundingBox(self):
         # find  top right point to create a bounding box (bottom left is [0, 0])

@@ -1,7 +1,5 @@
-import matplotlib
 import pprint
 from Polygon import Polygon, Point
-from LineSegment import LineSegment
 from RandomizedIncrementalConstruction import RandomizedIncrementalConstruction
 import matplotlib.pyplot as plt
 
@@ -84,7 +82,7 @@ def visualize(P, MAP):
 
 if __name__ == '__main__':
     # make polygon based on input
-    P = load_input('Data/test_0.txt')
+    P = load_input('Data/test_2.txt')
     # Initialize algorithm (also computes the map already)
     R = RandomizedIncrementalConstruction(P)
     T = R.getTrapezoidalMap()

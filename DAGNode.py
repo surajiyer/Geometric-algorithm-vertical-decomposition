@@ -46,7 +46,6 @@ class DAGNode:
         if isinstance(self.graphObject, Point):
             # if the querypoint is the same as this node
             if queryPoint == self.graphObject:
-
                 # we do not want to change the querypoint itself
                 newQueryPoint = copy.deepcopy(queryPoint)
                 queryPointExisted = True
@@ -76,9 +75,13 @@ class DAGNode:
                 elif queryPoint.x > self.graphObject.x:
                     return self.rightchild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
                 else:
+                    if isinstance(self.leftchild.graphObject, LineSegment):
+                        if self.leftchild.graphObject.aboveLine(queryPoint):
+                            return self.rightchild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
+                        else:
+                            return self.leftchild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
                     return self.rightchild.getQueryResult(queryPoint, lineSegment, queryPointExisted)
                     # TODO: handle points with same x
-
         elif isinstance(self.graphObject, LineSegment):
             # we are a Y-Node
             if self.graphObject.aboveLine(queryPoint):

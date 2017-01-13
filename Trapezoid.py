@@ -30,7 +30,11 @@ class Trapezoid(GraphObject):
         if self.top.p == self.bottom.p:
             return
 
-        if self.leftp == self.top.p:
+        if self.leftp.x == self.rightp.x:
+            """ zero-width trapezoid """
+            y_high = self.leftp.y
+            y_low = self.rightp.y
+        elif self.leftp == self.top.p:
             l = self.bottom
             y_high = self.leftp.y
             y_low = l.getSlope() * self.leftp.x + l.getIntercept()
@@ -46,8 +50,11 @@ class Trapezoid(GraphObject):
 
         for n in neighborarray:
             if self.leftp.x == n.rightp.x:
-                print("setLeft", self)
-                if n.rightp == n.top.q:
+                if n.leftp.x == n.rightp.x:
+                    """ zero-width trapezoid """
+                    ny_high = n.leftp.y
+                    ny_low = n.rightp.y
+                elif n.rightp == n.top.q:
                     l = n.bottom
                     ny_high = n.rightp.y
                     ny_low = l.getSlope() * n.rightp.x + l.getIntercept()
@@ -62,9 +69,9 @@ class Trapezoid(GraphObject):
                     ny_high = l.getSlope() * n.rightp.x + l.getIntercept()
 
                 # sides overlap
-                if ny_low < y_high < ny_high or ny_low < y_low < ny_high or y_low < ny_low < y_high or y_low < ny_high < y_high:
-                    print("ylow", y_low, "yhigh", y_high, "nylow", ny_low, "nyhigh", ny_high)
-                    print(self, n)
+                if ny_low < y_high < ny_high or ny_low < y_low < ny_high \
+                        or y_low < ny_low < y_high or y_low < ny_high < y_high \
+                        or (y_low == ny_low and y_high == ny_high):
                     sys.stdout.flush()
                     self.leftneighbors.append(n)
 
@@ -75,7 +82,10 @@ class Trapezoid(GraphObject):
         if self.top.q == self.bottom.q:
             return
 
-        if self.rightp == self.top.q:
+        if self.leftp.x == self.rightp.x:
+            y_high = self.leftp.y
+            y_low = self.rightp.y
+        elif self.rightp == self.top.q:
             l = self.bottom
             y_high = self.rightp.y
             y_low = l.getSlope() * self.rightp.x + l.getIntercept()
@@ -91,8 +101,11 @@ class Trapezoid(GraphObject):
 
         for n in neighborarray:
             if self.rightp.x == n.leftp.x:
-
-                if n.leftp == n.top.p:
+                if n.leftp.x == n.rightp.x:
+                    """ zero-width trapezoid """
+                    ny_high = n.leftp.y
+                    ny_low = n.rightp.y
+                elif n.leftp == n.top.p:
                     l = n.bottom
                     ny_high = n.leftp.y
                     ny_low = l.getSlope() * n.leftp.x + l.getIntercept()
@@ -107,7 +120,9 @@ class Trapezoid(GraphObject):
                     ny_high = l.getSlope() * n.leftp.x + l.getIntercept()
 
                 # sides overlap
-                if ny_low < y_high < ny_high or ny_low < y_low < ny_high or y_low < ny_low < y_high or y_low < ny_high < y_high:
+                if ny_low < y_high < ny_high or ny_low < y_low < ny_high \
+                        or y_low < ny_low < y_high or y_low < ny_high < y_high \
+                        or (y_low == ny_low and y_high == ny_high):
                     self.rightneighbors.append(n)
 
     def __eq__(self, other):
