@@ -1,6 +1,7 @@
 import pprint
-from Polygon import Polygon, Point
+from Polygon import Polygon, Point, LineSegment
 from RandomizedIncrementalConstruction import RandomizedIncrementalConstruction
+from LineSweep import LineSweep
 import matplotlib.pyplot as plt
 
 
@@ -81,18 +82,28 @@ def visualize(P, MAP):
 
 
 if __name__ == '__main__':
-    # make polygon based on input
-    P = load_input('Data/test_2.txt')
-    # Initialize algorithm (also computes the map already)
-    R = RandomizedIncrementalConstruction(P)
-    T = R.getTrapezoidalMap()
+    # # make polygon based on input
+    # P = load_input('Data/test_2.txt')
+    # # Initialize algorithm (also computes the map already)
+    # R = RandomizedIncrementalConstruction(P)
+    # T = R.getTrapezoidalMap()
+    #
+    # pp = pprint.PrettyPrinter(indent=4)
+    # for trap in T.trapezoids:
+    #     pp.pprint(trap)
+    #     pp.pprint(trap.leftneighbors)
+    #     pp.pprint(trap.rightneighbors)
+    # visualize(P, T)
 
-    pp = pprint.PrettyPrinter(indent=4)
-    for trap in T.trapezoids:
-        pp.pprint(trap)
-        pp.pprint(trap.leftneighbors)
-        pp.pprint(trap.rightneighbors)
+    P = load_input('Data/test_0.txt')
+    # Initialize algorithm (also computes the map already)
+    R = LineSweep(P)
+    print(LineSegment(Point(3, 3), Point(7, 3)) > LineSegment(Point(4, 4), Point(5, 7)))
+    T = R.getTrapezoidalMap()
     visualize(P, T)
+
+
+
 
     """
     #testing aboveLine method

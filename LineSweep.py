@@ -1,5 +1,7 @@
 from Polygon import Polygon, Point, LineSegment
 from TrapezoidMap import TrapezoidMap, Trapezoid
+from operator import itemgetter
+from bintrees import AVLTree
 
 
 class LineSweep:
@@ -9,7 +11,7 @@ class LineSweep:
         # the event structure
         self.Q = []
         # the status structure
-        self.S = []
+        self.S = AVLTree()
         self.lineSweep()
 
 
@@ -22,24 +24,63 @@ class LineSweep:
 
     def lineSweep(self):
         self.T = TrapezoidMap([])
+        self.Test = []
         # first initialize the event structure
         self.initEventStructure()
         # now compute the bounding box
         self.computeBoundingBox()
         # now loop over the event points
-        for point in self.Q:
-            self.handleEventPoint(point)
+        for event in self.Q:
+            self.handleEventPoint(event)
 
-    def handleEventPoint(self, point):
-        # TODO: handle event point
+    def handleEventPoint(self, event):
+        # first we check which "kind" of point we have for each edge
+        # the event point is the startpoint of this edge
+        for j in range(1, len(event)) :
+            if event[0] == event[j].p:
+                self.handleStartPoint(event[0], event[j])
+            elif event[0] == event[j].q:
+                self.handleEndPoint(event[0], event[j])
+
+    def handleStartPoint(self, point, linesegment):
+        assert isinstance(point, Point)
+        assert isinstance(linesegment, LineSegment)
+        # TODO: handle start event point
+        # print("point", point, " is the startpoint of linesegment", linesegment)
+        self.Test.append([linesegment, None])
+        self.S.insert(linesegment, None)
+        print(self.S)
+
+
+    def handleEndPoint(self, point, linesegment):
+        assert isinstance(point, Point)
+        assert isinstance(linesegment, LineSegment)
+        # TODO: handle end event point
+        # print("point", point, " is the endpoint of linesegment", linesegment)
 
     def initEventStructure(self):
-        # TODO: sort the points based on x coordinate from low to high
-        # if points have the same x, the point with lowest y goes first
-        for point in self.polygon.V:
-            self.Q.append(point)
+        #the edge between the first and last point
+        lastEdge = LineSegment(self.polygon.V[0], self.polygon.V[-1])
 
-        self.Q.sort()
+        # if points have the same x, the point with lowest y goes first
+        for i in range(len(self.polygon.V)):
+            eventPoint = []
+            eventPoint.append(self.polygon.V[i])
+            #the current point is not the first or last one
+            if i != 0:
+                # the edge between the current point and the previous one
+                eventPoint.append(LineSegment(self.polygon.V[i], self.polygon.V[i - 1]))
+            else:
+                eventPoint.append(lastEdge)
+            if i != (len(self.polygon.V) - 1):
+                # the edge between the current point and the next one
+                eventPoint.append(LineSegment(self.polygon.V[i], self.polygon.V[i + 1]))
+            else:
+                eventPoint.append(lastEdge)
+
+            self.Q.append(eventPoint)
+
+        self.Q.sort(key=lambda event: (event[0].x, event[0].y))
 
     def computeBoundingBox(self):
         # find  top right point to create a bounding box (bottom left is [0, 0])
@@ -60,14 +101,19 @@ class LineSweep:
             if point.get_y() <= bottomLeft.get_y():
                 bottomLeft.set_y(point.get_y() - 1)
 
-        # TODO: we might need a different point class here, discuss with group
+        #define bounding box edges
+        topEdge = LineSegment(Point(bottomLeft.x, topRight.y), Point(topRight.x, topRight.y))
+        bottomEdge = LineSegment(Point(bottomLeft.x, bottomLeft.y), Point(topRight.x, bottomLeft.y))
+
         # based on the bounding box dimensions we add events to Q
         # first insert the top left point of the bounding box since it should be the second event
-        self.Q.insert(Point(bottomLeft.x, topRight.y), 0)
+        self.Q.insert(0, [topEdge.p, topEdge])
         # then insert the bottom left point of the bounding box since it should be the first event
-        self.Q.insert(Point(bottomLeft.x, bottomLeft.y), 0)
-        # then append the bottom right point as it should be the second last event
-        self.Q.append(Point(topRight.x, bottomLeft.y))
+        self.Q.insert(0, [bottomEdge.p, bottomEdge])
+        # then append the bottom right point as it should be the second to last event
+        self.Q.append([bottomEdge.q, bottomEdge])
         # and finally append the top right point
-        self.Q.append(Point(topRight.x, topRight.y))
+        self.Q.append([topEdge.q, topEdge])
+
+        print("Event Structure: ", self.Q)
 

@@ -19,12 +19,17 @@ class LineSegment(GraphObject):
             self.p = q
             self.q = p
         else:
-            if p.y > q.y:
+            if p.y < q.y:
                 self.p = p
                 self.q = q
             else:
                 self.p = q
                 self.q = p
+
+        if p.x == q.x:
+            self.isVertical = True
+        else:
+            self.isVertical = False
 
         self.len = math.sqrt(math.pow(p.x - q.x, 2) + math.pow(p.y - q.y, 2))
 
@@ -79,6 +84,8 @@ class LineSegment(GraphObject):
         :return:
         """
         assert isinstance(point, Point)
+        # TODO: consider what to do with vertical lines
+
         v1x = self.q.x - self.p.x  # Vector 1.x
         v1y = self.q.y - self.p.y  # Vector 1.y
         v2x = self.q.x - point.x  # Vector 2.x
@@ -135,8 +142,76 @@ class LineSegment(GraphObject):
 
         return False
 
+    def belowOther(self, other) -> bool:
+        #if self is a vertical line segment
+        if self.isVertical and not other.isVertical:
+            # if one of the endpoints overlap
+            if self.p == other.p or self.p == other.q:
+                # we cant use this point
+                pass
+            else:
+                if other.aboveLine(self.p):
+                    # self is above so return false
+                    return False
+
+            # if one of the endpoints overlap
+            if self.q == other.p or self.q == other.q:
+                # we cant use this point
+                pass
+            else:
+                if other.aboveLine(self.q):
+                    # self is above so return false
+                    return False
+
+        # if other is a vertical line segment
+        if other.isVertical and not self.isVertical:
+            # if one of the endpoints overlap
+            if other.p == self.p or other.p == self.q:
+                # we cant use this point
+                pass
+            else:
+                if self.aboveLine(other.p):
+                    # other is above so return true
+                    return True
+
+            # if one of the endpoints overlap
+            if other.q == self.p or other.q == self.q:
+                # we cant use this point
+                pass
+            else:
+                if self.aboveLine(other.q):
+                    # other is above so return true
+                    return True
+
+        #if they are both vertical...
+        if self.isVertical and other.isVertical:
+            #self.q is always the highest point in this case
+            if self.q.y > other.q.y:
+                #the highest point of self is above the higest point of other
+                return False
+
+        if self.aboveLine(other.p) and self.aboveLine(other.q):
+            return True
+
+        if not (other.aboveLine(self.p) and other.aboveLine(self.q)):
+            return True
+
+        #return false if none of the above statements returned true
+        return False
+
+
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
+
+    def __lt__(self, other):
+        print(self, "is below", other, " : ", self.belowOther(other))
+        #returns if self is below the other line segment
+        return self.belowOther(other)
+
+    def __gt__(self, other):
+        print(self, "is above", other," : " ,not self.belowOther(other))
+        #returns if self is above the other line segment
+        return not self.belowOther(other)
 
     def __repr__(self):
         return '<Segment p:%s q:%s>' % (str(self.p), str(self.q))
