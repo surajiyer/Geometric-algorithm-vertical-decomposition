@@ -1,6 +1,7 @@
 from Point import Point
 from LineSegment import LineSegment
 from GraphObject import GraphObject
+from DAGNode import DAGNode
 import sys
 
 
@@ -10,18 +11,28 @@ class Trapezoid(GraphObject):
     (2 line segments and 2 endpoints respectively)
     """
 
-    def __init__(self, leftp, rightp, top, bottom):
+    def __init__(self, leftp, rightp, top, bottom, node=DAGNode(None)):
         super().__init__()
         assert isinstance(leftp, Point) and isinstance(rightp, Point), 'leftp and/or rightp is not a point'
-        self.leftp = leftp
-        self.rightp = rightp
-
         assert isinstance(top, LineSegment) and isinstance(bottom,
                                                            LineSegment), 'top and/or bottom is not a line segment'
+        assert isinstance(node, DAGNode)
+        self.leftp = leftp
+        self.rightp = rightp
         self.top = top
         self.bottom = bottom
         self.leftneighbors = []
         self.rightneighbors = []
+        self._node = DAGNode(None)
+        self.node = node
+
+    def set_node(self, node):
+        self._node.modify(node)
+
+    def get_node(self):
+        return self._node
+
+    node = property(get_node, set_node)
 
     def setLeftNeighbors(self, neighborarray):
         assert isinstance(neighborarray, list) and all(isinstance(n, Trapezoid) for n in neighborarray)

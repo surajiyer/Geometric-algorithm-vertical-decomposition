@@ -37,6 +37,9 @@ class LineSegment(GraphObject):
     def getIntercept(self):
         return self.p.y - self.getSlope() * self.p.x
 
+    def getY(self, x):
+        return Point(x, self.getSlope()*x + self.getIntercept())
+
     @staticmethod
     def on_segment(p, q, r):
         """
