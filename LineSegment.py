@@ -12,12 +12,19 @@ class LineSegment(GraphObject):
         super().__init__()
         assert isinstance(p, Point) and isinstance(q, Point)
         # we want to make sure p is always the left point
-        if p.x <= q.x:
+        if p.x < q.x:
             self.p = p
             self.q = q
-        else:
+        elif p.x > q.x:
             self.p = q
             self.q = p
+        else:
+            if p.y > q.y:
+                self.p = p
+                self.q = q
+            else:
+                self.p = q
+                self.q = p
 
         self.len = math.sqrt(math.pow(p.x - q.x, 2) + math.pow(p.y - q.y, 2))
 
