@@ -153,6 +153,8 @@ class LineSegment(GraphObject):
                 if other.aboveLine(self.p):
                     # self is above so return false
                     return False
+                else:
+                    return True
 
             # if one of the endpoints overlap
             if self.q == other.p or self.q == other.q:
@@ -162,6 +164,8 @@ class LineSegment(GraphObject):
                 if other.aboveLine(self.q):
                     # self is above so return false
                     return False
+                else:
+                    return True
 
         # if other is a vertical line segment
         if other.isVertical and not self.isVertical:
@@ -173,6 +177,8 @@ class LineSegment(GraphObject):
                 if self.aboveLine(other.p):
                     # other is above so return true
                     return True
+                else:
+                    return False
 
             # if one of the endpoints overlap
             if other.q == self.p or other.q == self.q:
@@ -182,6 +188,8 @@ class LineSegment(GraphObject):
                 if self.aboveLine(other.q):
                     # other is above so return true
                     return True
+                else:
+                    return False
 
         #if they are both vertical...
         if self.isVertical and other.isVertical:
@@ -189,6 +197,8 @@ class LineSegment(GraphObject):
             if self.q.y > other.q.y:
                 #the highest point of self is above the higest point of other
                 return False
+            else:
+                return True
 
         if self.aboveLine(other.p) and self.aboveLine(other.q):
             return True
