@@ -37,7 +37,7 @@ class LineSegment(GraphObject):
         return self.len
 
     def getSlope(self):
-        return (self.q.y - self.p.y) / (self.q.x - self.p.x)
+        return None if self.isVertical else (self.q.y - self.p.y) / (self.q.x - self.p.x)
 
     def getIntercept(self):
         return self.p.y - self.getSlope() * self.p.x
