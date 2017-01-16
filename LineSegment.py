@@ -84,8 +84,8 @@ class LineSegment(GraphObject):
         :return:
         """
         assert isinstance(point, Point)
-        # TODO: consider what to do with vertical lines
-
+        if self.isVertical:
+            raise ValueError ("Above line is not defined for Vertical segments")
         v1x = self.q.x - self.p.x  # Vector 1.x
         v1y = self.q.y - self.p.y  # Vector 1.y
         v2x = self.q.x - point.x  # Vector 2.x

@@ -190,6 +190,7 @@ class RandomizedIncrementalConstruction:
 
         elif len(intersectingTrapezoids) > 1:
             """ https://isotropic.org/papers/point-location.pdf """
+            # TODO modify the left child of the neighboring p-node to a new left child
             # Handle the trapezoid containing lineSegment.p
             newLeftTrapezoid = Trapezoid(pTrapezoid.left_p, lineSegment.p, pTrapezoid.top,
                                          pTrapezoid.bottom)
@@ -220,11 +221,22 @@ class RandomizedIncrementalConstruction:
                                     t.top, lineSegment)
                 new_bottom = Trapezoid(lineSegment.getY(t.left_p.x), lineSegment.getY(t.right_p.x),
                                        lineSegment, t.bottom)
+                # if t == intersectingTrapezoids[1]:
+                #     if t.leftp == t.top.p or t.leftp == t.bottom.p:
+                #        if t.leftp == t.top.p and t.leftp.aboveLine(lineSegment):
+                #            new_top.setLeftNeighbors([newRightTopTrapezoid])
+                #            new_bottom.setLeftNeighbors([newRightBottomTrapezoid])
+                #        elif t.leftp == t.top.p and not t.leftp.aboveLine(lineSegment):
+                #
+                #         new_top.setLeftNeighbors([newRightTopTrapezoid])
+                #
+                #
                 newTopTrapezoids.append(new_top)
                 newBottomTrapezoids.append(new_bottom)
             newTopTrapezoids.append(newRightTopTrapezoid)
             newBottomTrapezoids.append(newRightBottomTrapezoid)
 
+            # TODO set the left and right neighbors of merged trapezoids
             # Merge trapezoids with the same top and bottom line segments
             newTopTrapezoids = [(k, Trapezoid(g[0].left_p, g[-1].right_p, k, g[0].bottom))
                                 for k, g in groupby(newTopTrapezoids, lambda x: x.top)]
@@ -235,19 +247,20 @@ class RandomizedIncrementalConstruction:
 
             # Handling neighbor calculation
             # TODO: fix the neighbors of the new trapezoids
-            newLeftTrapezoid.setLeftNeighbors(pTrapezoid.left_neighbors)
-            newLeftTrapezoid.setRightNeighbors([newLeftBottomTrapezoid, newLeftTopTrapezoid])
-            newLeftBottomTrapezoid.setLeftNeighbors([newLeftTrapezoid])
-            newLeftBottomTrapezoid.setRightNeighbors(list(trapezoids[0]))
-            newLeftTopTrapezoid.setLeftNeighbors([newLeftTrapezoid])
-            newLeftTopTrapezoid.setRightNeighbors(list(trapezoids[0]))
 
-            newRightTrapezoid.setLeftNeighbors([newRightBottomTrapezoid, newRightTopTrapezoid])
-            newRightTrapezoid.setRightNeighbors(pTrapezoid.right_neighbors)
-            newRightBottomTrapezoid.setLeftNeighbors(list(trapezoids[-1]))
-            newRightBottomTrapezoid.setRightNeighbors([newRightTrapezoid])
-            newRightTopTrapezoid.setLeftNeighbors(list(trapezoids[-1]))
-            newRightTopTrapezoid.setRightNeighbors([newRightTrapezoid])
+            # newLeftTrapezoid.setLeftNeighbors(pTrapezoid.left_neighbors)
+            # newLeftTrapezoid.setRightNeighbors([newLeftBottomTrapezoid, newLeftTopTrapezoid])
+            # newLeftBottomTrapezoid.setLeftNeighbors([newLeftTrapezoid])
+            # newLeftBottomTrapezoid.setRightNeighbors(list(trapezoids[0]))
+            # newLeftTopTrapezoid.setLeftNeighbors([newLeftTrapezoid])
+            # newLeftTopTrapezoid.setRightNeighbors(list(trapezoids[0]))
+            #
+            # newRightTrapezoid.setLeftNeighbors([newRightBottomTrapezoid, newRightTopTrapezoid])
+            # newRightTrapezoid.setRightNeighbors(pTrapezoid.right_neighbors)
+            # newRightBottomTrapezoid.setLeftNeighbors(list(trapezoids[-1]))
+            # newRightBottomTrapezoid.setRightNeighbors([newRightTrapezoid])
+            # newRightTopTrapezoid.setLeftNeighbors(list(trapezoids[-1]))
+            # newRightTopTrapezoid.setRightNeighbors([newRightTrapezoid])
 
             # Update the DAG
             pTrapezoid.node = DAGNode(lineSegment.p, left_child=newLeftTrapezoid.node,
