@@ -1,6 +1,5 @@
 from Polygon import Polygon, Point, LineSegment
 from TrapezoidMap import TrapezoidMap, Trapezoid
-from operator import itemgetter
 from bintrees import AVLTree
 
 
@@ -24,7 +23,6 @@ class LineSweep:
 
     def lineSweep(self):
         self.T = TrapezoidMap([])
-        self.Test = []
         # first initialize the event structure
         self.initEventStructure()
         # now compute the bounding box
@@ -34,29 +32,141 @@ class LineSweep:
             self.handleEventPoint(event)
 
     def handleEventPoint(self, event):
-        # first we check which "kind" of point we have for each edge
-        # the event point is the startpoint of this edge
-        for j in range(1, len(event)) :
-            if event[0] == event[j].p:
-                self.handleStartPoint(event[0], event[j])
-            elif event[0] == event[j].q:
-                self.handleEndPoint(event[0], event[j])
+        # if the event contains a point on the bounding box
+        if event[1] == "G":
+            if event[0] == event[2].p:
+                self.handleStartPoint(event[0], event[2], event[1])
+            else:
+                self.handleEndPoint(event[0], event[2], event[1])
 
-    def handleStartPoint(self, point, linesegment):
+        else:
+            if event[0] == event[2].p:
+                self.handleStartPoint(event[0], event[2], event[1], event[3])
+            elif event[0] == event[2].q:
+                self.handleEndPoint(event[0], event[2], event[1], event[3])
+            else:
+                raise ValueError("point is not part of the linesegment")
+
+            if event[0] == event[3].p:
+                self.handleStartPoint(event[0], event[3], event[1], event[2])
+            elif event[0] == event[3].q:
+                self.handleEndPoint(event[0], event[3], event[1], event[2])
+            else:
+                raise ValueError("point is not part of the linesegment")
+
+    def handleStartPoint(self, point, linesegment, case = None, otherline = None):
         assert isinstance(point, Point)
         assert isinstance(linesegment, LineSegment)
         # TODO: handle start event point
-        # print("point", point, " is the startpoint of linesegment", linesegment)
-        self.Test.append([linesegment, None])
+        print("point", point, " is the startpoint of linesegment", linesegment)
+        # insert the segment into the status
         self.S.insert(linesegment, None)
-        print(self.S)
+        print("inserted:", self.S)
+
+        pred = self.getPred(linesegment)
+        succ = self.getSucc(linesegment)
+
+        if case == "A":
+            pass
+        elif case == "B":
+            #make trapezoids with pred and/or succ
+            if pred.p.x < succ.p.x:
+                self.T.addTrapezoid(Trapezoid(succ.p, point, succ, pred))
+            else:
+                self.T.addTrapezoid(Trapezoid(pred.p, point, succ, pred))
+        elif case == "C":
+            raise ValueError ("This should not happen!")
+        elif case == "D":
+            pass
+        elif case == "E":
+            pass
+        elif case == "F":
+            # we simply ignore this case
+            pass
+        else:
+            # the event point is on the bounding box
+            pass
 
 
-    def handleEndPoint(self, point, linesegment):
+    def handleEndPoint(self, point, linesegment, case, otherline = None):
         assert isinstance(point, Point)
         assert isinstance(linesegment, LineSegment)
         # TODO: handle end event point
-        # print("point", point, " is the endpoint of linesegment", linesegment)
+        print("point", point, " is the endpoint of linesegment", linesegment)
+
+        pred = self.getPred(linesegment)
+        succ = self.getSucc(linesegment)
+
+        if case == "A":
+            # make a trapezoid with the current linesegment
+            if pred.p.x <= linesegment.p.x:
+                self.T.addTrapezoid(Trapezoid(linesegment.p, linesegment.q, linesegment, pred))
+            elif pred.p.x > linesegment.p.x and pred.p.x < linesegment.q.x:
+                self.T.addTrapezoid(Trapezoid(pred.p, linesegment.q, linesegment, pred))
+            else:
+                # in this case we do not know bottom so do nothing
+                pass
+
+            #also consider successor
+            if succ.p.x <= linesegment.p.x:
+                self.T.addTrapezoid(Trapezoid(linesegment.p, linesegment.q, succ, linesegment))
+            elif pred.p.x > linesegment.p.x and pred.p.x < linesegment.q.x:
+                self.T.addTrapezoid(Trapezoid(succ.p, linesegment.q, succ, linesegment))
+            else:
+                # in this case we do not know bottom so do nothing
+                pass
+        elif case == "B":
+            raise ValueError("this should not be possible!")
+        elif case == "C":
+            # first check the pred and succ of the current line
+            if pred == otherline:
+                #the current line is the top line, get a new predecessor
+                pred = self.getPred(otherline)
+                #make a trapezoid to the left
+                self.T.addTrapezoid(Trapezoid(succ.p, point, succ, linesegment))
+
+            if succ == otherline:
+                #the current line is the bottom one, get a new successor
+                succ = self.getSucc(otherline)
+                # make a trapezoid to the left
+                self.T.addTrapezoid(Trapezoid(pred.p, point, linesegment, pred))
+
+            # make trapezoids with pred and/or succ to the right
+            if pred.q.x < succ.q.x:
+                self.T.addTrapezoid(Trapezoid(point, pred.q, succ, pred))
+            else:
+                self.T.addTrapezoid(Trapezoid(point, succ.q, succ, pred))
+
+        elif case == "D":
+            pass
+        elif case == "E":
+            pass
+        elif case == "F":
+            # we simply ignore this case
+            pass
+        else:
+            # the event point is on the bounding box
+            pass
+
+        # remove the linesegment from the status
+        self.S.remove(linesegment)
+        print("removed:", self.S)
+
+    def getPred(self, linesegment) -> LineSegment:
+        assert(isinstance( linesegment, LineSegment))
+        try:
+            return self.S.prev_key(linesegment)
+        except KeyError:
+            print(linesegment, "had no predecessor")
+            return None
+
+    def getSucc(self, linesegment) -> LineSegment:
+        assert(isinstance( linesegment, LineSegment))
+        try:
+            return self.S.succ_key(linesegment)
+        except KeyError:
+            print(linesegment, "had no predecessor")
+            return None
 
     def initEventStructure(self):
         #the edge between the first and last point
@@ -78,13 +188,50 @@ class LineSweep:
             else:
                 eventPoint.append(lastEdge)
 
+            # now also "sort" the edges of an event such that the edge where the point is the endpoint is done first
+            # if the point equals the endpoint (q) of the first edge, we are fine
+            if eventPoint[1].q == eventPoint[0]:
+                pass
+            elif eventPoint[2].q == eventPoint[0]:
+                # in this case we must swap eventPoint[1] and eventPoint[2]
+                eventPoint[1], eventPoint[2] = eventPoint[2], eventPoint[1]
+
+            # now we wish to determine the "case" we have here
+            eventPoint.insert(1, self.determineCase(eventPoint[0], eventPoint[1], eventPoint[2]))
+
             self.Q.append(eventPoint)
 
         self.Q.sort(key=lambda event: (event[0].x, event[0].y))
 
+    # given a point and two lines connected to this point, determine the configuration they are in
+    def determineCase(self, point, l1, l2):
+        assert(isinstance(point, Point))
+        assert (isinstance(l1, LineSegment))
+        assert (isinstance(l2, LineSegment))
+
+        if l1.isVertical and not l2.isVertical:
+            if l2.p == l1.p or l2.p == l1.q:
+                return "D"
+            elif l2.q == l1.p or l2.q == l1.q:
+                return "E"
+        elif l2.isVertical and not l1.isVertical:
+            if l1.p == l2.p or l1.p == l2.q:
+                return "D"
+            elif l1.q == l2.p or l1.q == l2.q:
+                return "E"
+        elif l1.isVertical and l2.isVertical:
+            return "F"
+        elif point == l1.p and point == l2.p:
+            return "B"
+        elif point == l1.q and point == l2.q:
+            return "C"
+        elif point == l1.q and point == l2.p:
+            return "A"
+        else:
+            raise ValueError("Case not defined")
+
     def computeBoundingBox(self):
         # find  top right point to create a bounding box (bottom left is [0, 0])
-        # TODO: we might need a different point class here, discuss with group
         topRight = Point(0, 0)
         bottomLeft = Point(float("inf"), float("inf"))
 
@@ -107,13 +254,13 @@ class LineSweep:
 
         # based on the bounding box dimensions we add events to Q
         # first insert the top left point of the bounding box since it should be the second event
-        self.Q.insert(0, [topEdge.p, topEdge])
+        self.Q.insert(0, [topEdge.p, "G", topEdge])
         # then insert the bottom left point of the bounding box since it should be the first event
-        self.Q.insert(0, [bottomEdge.p, bottomEdge])
+        self.Q.insert(0, [bottomEdge.p, "G", bottomEdge])
         # then append the bottom right point as it should be the second to last event
-        self.Q.append([bottomEdge.q, bottomEdge])
+        self.Q.append([bottomEdge.q, "G", bottomEdge])
         # and finally append the top right point
-        self.Q.append([topEdge.q, topEdge])
+        self.Q.append([topEdge.q, "G", topEdge])
 
         print("Event Structure: ", self.Q)
 

@@ -36,40 +36,40 @@ def visualize(P, MAP):
     for trapezoid in MAP.trapezoids:
         y_s = []
         # now we need to project a vertical line on the bottom edge
-        if trapezoid.leftp == trapezoid.top.p:
+        if trapezoid.left_p == trapezoid.top.p:
             l = trapezoid.bottom
-            y = l.getSlope() * trapezoid.leftp.x + l.getIntercept()
-            y_s.extend([y, trapezoid.leftp.y])
-        elif trapezoid.leftp == trapezoid.bottom.p:
+            y = l.getSlope() * trapezoid.left_p.x + l.getIntercept()
+            y_s.extend([y, trapezoid.left_p.y])
+        elif trapezoid.left_p == trapezoid.bottom.p:
             l = trapezoid.top
-            y = l.getSlope() * trapezoid.leftp.x + l.getIntercept()
-            y_s.extend([trapezoid.leftp.y, y])
+            y = l.getSlope() * trapezoid.left_p.x + l.getIntercept()
+            y_s.extend([trapezoid.left_p.y, y])
         else:
             l = trapezoid.bottom
-            y = l.getSlope() * trapezoid.leftp.x + l.getIntercept()
+            y = l.getSlope() * trapezoid.left_p.x + l.getIntercept()
             y_s.append(y)
             l = trapezoid.top
-            y = l.getSlope() * trapezoid.leftp.x + l.getIntercept()
+            y = l.getSlope() * trapezoid.left_p.x + l.getIntercept()
             y_s.append(y)
 
-        if trapezoid.rightp == trapezoid.top.p:
+        if trapezoid.right_p == trapezoid.top.p:
             l = trapezoid.bottom
-            y = l.getSlope() * trapezoid.rightp.x + l.getIntercept()
-            y_s.extend([trapezoid.rightp.y, y])
-        elif trapezoid.rightp == trapezoid.bottom.p:
+            y = l.getSlope() * trapezoid.right_p.x + l.getIntercept()
+            y_s.extend([trapezoid.right_p.y, y])
+        elif trapezoid.right_p == trapezoid.bottom.p:
             l = trapezoid.top
-            y = l.getSlope() * trapezoid.rightp.x + l.getIntercept()
-            y_s.extend([y, trapezoid.rightp.y])
+            y = l.getSlope() * trapezoid.right_p.x + l.getIntercept()
+            y_s.extend([y, trapezoid.right_p.y])
         else:
             l = trapezoid.top
-            y = l.getSlope() * trapezoid.rightp.x + l.getIntercept()
+            y = l.getSlope() * trapezoid.right_p.x + l.getIntercept()
             y_s.append(y)
             l = trapezoid.bottom
-            y = l.getSlope() * trapezoid.rightp.x + l.getIntercept()
+            y = l.getSlope() * trapezoid.right_p.x + l.getIntercept()
             y_s.append(y)
 
         y_s.append(y_s[0])
-        x_s = [trapezoid.leftp.x, trapezoid.leftp.x, trapezoid.rightp.x, trapezoid.rightp.x, trapezoid.leftp.x]
+        x_s = [trapezoid.left_p.x, trapezoid.left_p.x, trapezoid.right_p.x, trapezoid.right_p.x, trapezoid.left_p.x]
         plt.plot(x_s, y_s, 'k')
 
     x_s = [p.x for p in P.V]
@@ -81,22 +81,22 @@ def visualize(P, MAP):
 
 if __name__ == '__main__':
     # make polygon based on input
-    P = load_input('Data/test_2.txt')
-    # Initialize algorithm (also computes the map already)
-    R = RandomizedIncrementalConstruction(P)
-    T = R.getTrapezoidalMap()
-    for trap in T.trapezoids:
-        print(trap)
-        print(trap.left_neighbors)
-        print(trap.right_neighbors)
-    visualize(P, T)
-
-    # P = load_input('Data/test_0.txt')
+    # P = load_input('Data/test_2.txt')
     # # Initialize algorithm (also computes the map already)
-    # R = LineSweep(P)
-    # print(LineSegment(Point(3, 3), Point(7, 3)) > LineSegment(Point(4, 4), Point(5, 7)))
+    # R = RandomizedIncrementalConstruction(P)
     # T = R.getTrapezoidalMap()
+    # for trap in T.trapezoids:
+    #     print(trap)
+    #     print(trap.left_neighbors)
+    #     print(trap.right_neighbors)
     # visualize(P, T)
+
+    P = load_input('Data/test_0.txt')
+    # Initialize algorithm (also computes the map already)
+    R = LineSweep(P)
+    print(LineSegment(Point(3, 3), Point(7, 3)) > LineSegment(Point(4, 4), Point(5, 7)))
+    T = R.getTrapezoidalMap()
+    visualize(P, T)
 
     # # testing aboveLine method
     # P = Point(1, 0)
