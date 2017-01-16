@@ -10,20 +10,18 @@ class Trapezoid(GraphObject):
     (2 line segments and 2 endpoints respectively)
     """
 
-    def __init__(self, left_p, right_p, top, bottom, node=dag.DAGNode(None)):
+    def __init__(self, left_p, right_p, top, bottom):
         super().__init__()
         assert isinstance(left_p, Point) and isinstance(right_p, Point), 'left_p and/or right_p is not a point'
         assert isinstance(top, LineSegment) and isinstance(bottom,
                                                            LineSegment), 'top and/or bottom is not a line segment'
-        assert isinstance(node, dag.DAGNode)
         self.left_p = left_p
         self.right_p = right_p
         self.top = top
         self.bottom = bottom
         self.left_neighbors = []
         self.right_neighbors = []
-        self._node = dag.DAGNode(None)
-        self.node = node
+        self._node = dag.DAGNode(self)
 
     def set_node(self, node):
         self._node.modify(node)

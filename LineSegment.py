@@ -43,7 +43,7 @@ class LineSegment(GraphObject):
         return self.p.y - self.getSlope() * self.p.x
 
     def getY(self, x):
-        return Point(x, self.getSlope()*x + self.getIntercept())
+        return Point(x, self.getSlope() * x + self.getIntercept())
 
     @staticmethod
     def on_segment(p, q, r):
@@ -143,7 +143,7 @@ class LineSegment(GraphObject):
         return False
 
     def belowOther(self, other) -> bool:
-        #if self is a vertical line segment
+        # if self is a vertical line segment
         if self.isVertical and not other.isVertical:
             # if one of the endpoints overlap
             if self.p == other.p or self.p == other.q:
@@ -191,11 +191,11 @@ class LineSegment(GraphObject):
                 else:
                     return False
 
-        #if they are both vertical...
+        # if they are both vertical...
         if self.isVertical and other.isVertical:
-            #self.q is always the highest point in this case
+            # self.q is always the highest point in this case
             if self.q.y > other.q.y:
-                #the highest point of self is above the higest point of other
+                # the highest point of self is above the higest point of other
                 return False
             else:
                 return True
@@ -206,21 +206,20 @@ class LineSegment(GraphObject):
         if not (other.aboveLine(self.p) and other.aboveLine(self.q)):
             return True
 
-        #return false if none of the above statements returned true
+        # return false if none of the above statements returned true
         return False
-
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
     def __lt__(self, other):
         print(self, "is below", other, " : ", self.belowOther(other))
-        #returns if self is below the other line segment
+        # returns if self is below the other line segment
         return self.belowOther(other)
 
     def __gt__(self, other):
-        print(self, "is above", other," : " ,not self.belowOther(other))
-        #returns if self is above the other line segment
+        print(self, "is above", other, " : ", not self.belowOther(other))
+        # returns if self is above the other line segment
         return not self.belowOther(other)
 
     def __repr__(self):
