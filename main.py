@@ -35,7 +35,6 @@ def visualize(P, MAP):
     """
     for trapezoid in MAP.trapezoids:
         y_s = []
-        # TODO: compute corner coordinates
         # now we need to project a vertical line on the bottom edge
         if trapezoid.leftp == trapezoid.top.p:
             l = trapezoid.bottom
