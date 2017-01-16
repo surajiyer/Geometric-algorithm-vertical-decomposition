@@ -75,7 +75,7 @@ def visualize(P, MAP):
     x_s = [p.x for p in P.V]
     y_s = [p.y for p in P.V]
     plt.fill(x_s, y_s, 'b')
-    plt.grid(True)
+    #plt.grid(True)
     plt.show()
 
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     #     print(trap.right_neighbors)
     # visualize(P, T)
 
-    P = load_input('Data/dataPolygon.txt')
+    P = load_input('Data/charizard.txt')
     # Initialize algorithm (also computes the map already)
     R = LineSweep(P)
     T = R.getTrapezoidalMap()

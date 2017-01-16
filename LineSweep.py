@@ -64,12 +64,21 @@ class LineSweep:
         print("inserted:", linesegment)
         print(self.S)
 
-        pred = self.getPred(linesegment)
-        succ = self.getSucc(linesegment)
+        pred = self.getPred(linesegment, point, "start")
+        succ = self.getSucc(linesegment, point, "start")
 
         if case == "A":
             pass
         elif case == "B":
+            # first check the pred and succ of the current line
+            if pred == otherline:
+                # get a new predecessor
+                pred = self.getPred(otherline, point, "start")
+
+            if succ == otherline:
+                # get a new successor
+                succ = self.getSucc(otherline, point, "start")
+
             #make trapezoids with pred and/or succ
             if pred.p.x < succ.p.x:
                 self.T.addTrapezoid([Trapezoid(succ.p, point, succ, pred)])
@@ -95,8 +104,8 @@ class LineSweep:
         # TODO: handle end event point
         print("point", point, " is the endpoint of linesegment", linesegment)
 
-        pred = self.getPred(linesegment)
-        succ = self.getSucc(linesegment)
+        pred = self.getPred(linesegment, point, "end")
+        succ = self.getSucc(linesegment, point, "end")
 
         if case == "A":
             # make a trapezoid with the current linesegment
@@ -139,11 +148,11 @@ class LineSweep:
             # first check the pred and succ of the current line
             if pred == otherline:
                 # get a new predecessor
-                pred = self.getPred(otherline)
+                pred = self.getPred(otherline, point, "end")
 
             if succ == otherline:
                 # get a new successor
-                succ = self.getSucc(otherline)
+                succ = self.getSucc(otherline, point, "end")
 
             # make trapezoids with pred and/or succ to the right
             if pred.q.x < succ.q.x:
@@ -167,8 +176,10 @@ class LineSweep:
         print("removed:", linesegment)
         print(self.S)
 
-    def getPred(self, linesegment) -> LineSegment:
+    def getPred(self, linesegment, point, type) -> LineSegment:
         assert(isinstance(linesegment, LineSegment))
+        assert(isinstance(point, Point))
+
         try:
             return self.S.prev_key(linesegment)
         except KeyError:
@@ -179,8 +190,10 @@ class LineSweep:
             print("linesegment was there but there was no predecessor")
             return None
 
-    def getSucc(self, linesegment) -> LineSegment:
+    def getSucc(self, linesegment, point, type) -> LineSegment:
         assert(isinstance(linesegment, LineSegment))
+        assert (isinstance(point, Point))
+
         try:
             return self.S.succ_key(linesegment)
         except KeyError:
