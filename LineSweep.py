@@ -31,6 +31,9 @@ class LineSweep:
         for event in self.Q:
             self.handleEventPoint(event)
 
+        #now just add the last trapezoid
+        self.T.addTrapezoid([Trapezoid(self.Q[-3][0], self.Q[-1][0], self.Q[-1][2], self.Q[-2][2])])
+
     def handleEventPoint(self, event):
         # if the event contains a point on the bounding box
         if event[1] == "G":
@@ -60,42 +63,44 @@ class LineSweep:
         # TODO: handle start event point
         print("point", point, " is the startpoint of linesegment", linesegment)
         # insert the segment into the status
-        self.S.insert(linesegment, linesegment)
-        print("inserted:", linesegment)
-        print(self.S)
+        if(not linesegment.isVertical):
+            self.S.insert(linesegment, linesegment)
+            print("inserted:", linesegment)
+            print(self.S)
 
-        pred = self.getPred(linesegment, point, "start")
-        succ = self.getSucc(linesegment, point, "start")
+            pred = self.getPred(linesegment)
+            succ = self.getSucc(linesegment)
 
-        if case == "A":
-            pass
-        elif case == "B":
-            # first check the pred and succ of the current line
-            if pred == otherline:
-                # get a new predecessor
-                pred = self.getPred(otherline, point, "start")
+            if case == "A":
+                pass
+            elif case == "B":
+                # first check the pred and succ of the current line
+                if pred == otherline:
+                    # get a new predecessor
+                    pred = self.getPred(otherline)
 
-            if succ == otherline:
-                # get a new successor
-                succ = self.getSucc(otherline, point, "start")
+                if succ == otherline:
+                    # get a new successor
+                    succ = self.getSucc(otherline)
 
-            #make trapezoids with pred and/or succ
-            if pred.p.x < succ.p.x:
-                self.T.addTrapezoid([Trapezoid(succ.p, point, succ, pred)])
+                #make trapezoids with pred and/or succ
+                if pred.p.x < succ.p.x:
+                    self.T.addTrapezoid([Trapezoid(succ.p, point, succ, pred)])
+                else:
+                    self.T.addTrapezoid([Trapezoid(pred.p, point, succ, pred)])
+            elif case == "C":
+                raise ValueError ("This should not happen!")
+            elif case == "D":
+                pass
+                # TODO: is this really required?
+            elif case == "E":
+                raise ValueError("This should not happen!")
+            elif case == "F":
+                # we simply ignore this case
+                pass
             else:
-                self.T.addTrapezoid([Trapezoid(pred.p, point, succ, pred)])
-        elif case == "C":
-            raise ValueError ("This should not happen!")
-        elif case == "D":
-            pass
-        elif case == "E":
-            pass
-        elif case == "F":
-            # we simply ignore this case
-            pass
-        else:
-            # the event point is on the bounding box
-            pass
+                # the event point is on the bounding box
+                pass
 
 
     def handleEndPoint(self, point, linesegment, case, otherline = None):
@@ -104,103 +109,115 @@ class LineSweep:
         # TODO: handle end event point
         print("point", point, " is the endpoint of linesegment", linesegment)
 
-        pred = self.getPred(linesegment, point, "end")
-        succ = self.getSucc(linesegment, point, "end")
+        if not linesegment.isVertical:
+            pred = self.getPred(linesegment)
+            succ = self.getSucc(linesegment)
 
-        if case == "A":
-            # make a trapezoid with the current linesegment
-            if pred.p.x <= linesegment.p.x:
-                self.T.addTrapezoid([Trapezoid(linesegment.p, linesegment.q, linesegment, pred)])
-            elif pred.p.x > linesegment.p.x and pred.p.x < linesegment.q.x:
-                self.T.addTrapezoid([Trapezoid(pred.p, linesegment.q, linesegment, pred)])
+            if case == "A":
+                # make a trapezoid with the current linesegment
+                if pred.p.x <= linesegment.p.x:
+                    self.T.addTrapezoid([Trapezoid(linesegment.p, linesegment.q, linesegment, pred)])
+                elif pred.p.x > linesegment.p.x and pred.p.x < linesegment.q.x:
+                    self.T.addTrapezoid([Trapezoid(pred.p, linesegment.q, linesegment, pred)])
+                else:
+                    # in this case we do not know bottom so do nothing
+                    pass
+
+                #also consider successor
+                if succ.p.x <= linesegment.p.x:
+                    self.T.addTrapezoid([Trapezoid(linesegment.p, linesegment.q, succ, linesegment)])
+                elif pred.p.x > linesegment.p.x and pred.p.x < linesegment.q.x:
+                    self.T.addTrapezoid([Trapezoid(succ.p, linesegment.q, succ, linesegment)])
+                else:
+                    # in this case we do not know bottom so do nothing
+                    pass
+            elif case == "B":
+                raise ValueError("this should not be possible!")
+            elif case == "C":
+
+                if(linesegment > otherline):
+                    # the current line is the top line
+                    #make a trapezoid to the left
+                    if succ.p.x < linesegment.p.x:
+                        self.T.addTrapezoid([Trapezoid(linesegment.p, point, succ, linesegment)])
+                    else:
+                        self.T.addTrapezoid([Trapezoid(succ.p, point, succ, linesegment)])
+
+                if(linesegment < otherline):
+                    # the current line is the bottom one
+                    # make a trapezoid to the left
+                    if pred.p.x < linesegment.p.x:
+                        self.T.addTrapezoid([Trapezoid(linesegment.p, point, linesegment, pred)])
+                    else:
+                        self.T.addTrapezoid([Trapezoid(pred.p, point, linesegment, pred)])
+
+                # first check the pred and succ of the current line
+                if pred == otherline:
+                    # get a new predecessor
+                    pred = self.getPred(otherline)
+
+                if succ == otherline:
+                    # get a new successor
+                    succ = self.getSucc(otherline)
+
+                # make trapezoids with pred and/or succ to the right
+                if pred.q.x < succ.q.x:
+                    self.T.addTrapezoid([Trapezoid(point, pred.q, succ, pred)])
+                else:
+                    self.T.addTrapezoid([Trapezoid(point, succ.q, succ, pred)])
+
+            elif case == "D":
+                raise ValueError("This should not happen")
+            elif case == "E":
+                #special case: keep getting predecessors until this does not hold anymore
+                while pred.p.x == point.x:
+                    pred = self.getPred(pred)
+
+                if succ.p.x <= linesegment.p.x:
+                    self.T.addTrapezoid([Trapezoid(linesegment.p, linesegment.q, succ, linesegment)])
+                elif succ.p.x > linesegment.p.x and succ.p.x < linesegment.q.x:
+                    self.T.addTrapezoid([Trapezoid(succ.p, linesegment.q, succ, linesegment)])
+
+                if pred.p.x <= linesegment.p.x:
+                    self.T.addTrapezoid([Trapezoid(linesegment.p, linesegment.q, linesegment, pred)])
+                elif pred.p.x > linesegment.p.x and succ.p.x < linesegment.q.x:
+                    self.T.addTrapezoid([Trapezoid(pred.p, linesegment.q, linesegment, pred)])
+
+            elif case == "F":
+                # we simply ignore this case
+                pass
             else:
-                # in this case we do not know bottom so do nothing
+                # the event point is on the bounding box
                 pass
 
-            #also consider successor
-            if succ.p.x <= linesegment.p.x:
-                self.T.addTrapezoid([Trapezoid(linesegment.p, linesegment.q, succ, linesegment)])
-            elif pred.p.x > linesegment.p.x and pred.p.x < linesegment.q.x:
-                self.T.addTrapezoid([Trapezoid(succ.p, linesegment.q, succ, linesegment)])
-            else:
-                # in this case we do not know bottom so do nothing
-                pass
-        elif case == "B":
-            raise ValueError("this should not be possible!")
-        elif case == "C":
+            # remove the linesegment from the status
+            self.S.remove(linesegment)
+            print("removed:", linesegment)
+            print(self.S)
 
-            if(linesegment > otherline):
-                # the current line is the top line
-                #make a trapezoid to the left
-                if succ.p.x < linesegment.p.x:
-                    self.T.addTrapezoid([Trapezoid(linesegment.p, point, succ, linesegment)])
-                else:
-                    self.T.addTrapezoid([Trapezoid(succ.p, point, succ, linesegment)])
-
-            if(linesegment < otherline):
-                # the current line is the bottom one
-                # make a trapezoid to the left
-                if pred.p.x < linesegment.p.x:
-                    self.T.addTrapezoid([Trapezoid(linesegment.p, point, linesegment, pred)])
-                else:
-                    self.T.addTrapezoid([Trapezoid(pred.p, point, linesegment, pred)])
-
-            # first check the pred and succ of the current line
-            if pred == otherline:
-                # get a new predecessor
-                pred = self.getPred(otherline, point, "end")
-
-            if succ == otherline:
-                # get a new successor
-                succ = self.getSucc(otherline, point, "end")
-
-            # make trapezoids with pred and/or succ to the right
-            if pred.q.x < succ.q.x:
-                self.T.addTrapezoid([Trapezoid(point, pred.q, succ, pred)])
-            else:
-                self.T.addTrapezoid([Trapezoid(point, succ.q, succ, pred)])
-
-        elif case == "D":
-            pass
-        elif case == "E":
-            pass
-        elif case == "F":
-            # we simply ignore this case
-            pass
-        else:
-            # the event point is on the bounding box
-            pass
-
-        # remove the linesegment from the status
-        self.S.remove(linesegment)
-        print("removed:", linesegment)
-        print(self.S)
-
-    def getPred(self, linesegment, point, type) -> LineSegment:
+    def getPred(self, linesegment) -> LineSegment:
         assert(isinstance(linesegment, LineSegment))
-        assert(isinstance(point, Point))
 
         try:
             return self.S.prev_key(linesegment)
         except KeyError:
-            if(not self.S.__contains__(linesegment)):
-                #linesegment not found in the tree!, inserting again and finding predecessor
-                self.S.insert(linesegment, linesegment)
-                return self.S.prev_key(linesegment)
+            # if(not self.S.__contains__(linesegment)):
+            #     #linesegment not found in the tree!, inserting again and finding predecessor
+            #     self.S.insert(linesegment, linesegment)
+            #     return self.S.prev_key(linesegment)
             print("linesegment was there but there was no predecessor")
             return None
 
-    def getSucc(self, linesegment, point, type) -> LineSegment:
+    def getSucc(self, linesegment) -> LineSegment:
         assert(isinstance(linesegment, LineSegment))
-        assert (isinstance(point, Point))
 
         try:
             return self.S.succ_key(linesegment)
         except KeyError:
-            if (not self.S.__contains__(linesegment)):
-                # linesegment not found in the tree!, inserting again and finding predecessor
-                self.S.insert(linesegment, linesegment)
-                return self.S.succ_key(linesegment)
+            # if (not self.S.__contains__(linesegment)):
+            #     # linesegment not found in the tree!, inserting again and finding predecessor
+            #     self.S.insert(linesegment, linesegment)
+            #     return self.S.succ_key(linesegment)
             print("linesegment was there but there was no successor")
             return None
 
