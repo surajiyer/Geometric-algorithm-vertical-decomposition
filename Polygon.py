@@ -1,5 +1,6 @@
 from Point import Point
 from LineSegment import LineSegment
+import random
 
 
 class Polygon:
@@ -13,10 +14,12 @@ class Polygon:
         # check if points assume general position
         # assert self.is_general_position, 'Input points must have distinct x-coordinates'
 
-        # create edges
+        # create edges and randomize
         self.E = []
         for i, p in enumerate(points):
             self.E.append(LineSegment(p, points[(i + 1) % len(points)]))
+        # TODO: randomize
+        # random.shuffle(self.E)
 
         # check if points represent a simple polygon
         #assert self.is_simple_polygon, 'Input polygon must be simple'

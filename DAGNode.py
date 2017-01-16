@@ -11,7 +11,7 @@ class DAGNode:
     """
 
     def __init__(self, graph_object, left_child=None, right_child=None):
-        assert isinstance(graph_object, GraphObject) or graph_object is None
+        assert isinstance(graph_object, GraphObject)
         self.graphObject = graph_object
         self.left_child = left_child
         self.right_child = right_child
@@ -20,7 +20,7 @@ class DAGNode:
         return self._left_child
 
     def set_left_child(self, left_child):
-        assert isinstance(left_child, DAGNode) or left_child is None, 'leftchild should be a DAGNode!!!!!!!'
+        assert isinstance(left_child, DAGNode) or left_child is None, 'left_child should be a DAGNode!'
         self._left_child = left_child
 
     left_child = property(get_left_child, set_left_child)
@@ -29,7 +29,7 @@ class DAGNode:
         return self._right_child
 
     def set_right_child(self, right_child):
-        assert isinstance(right_child, DAGNode) or right_child is None, 'rightchild should be a DAGNode!!!!!!!'
+        assert isinstance(right_child, DAGNode) or right_child is None, 'right_child should be a DAGNode!'
         self._right_child = right_child
 
     right_child = property(get_right_child, set_right_child)
@@ -41,20 +41,20 @@ class DAGNode:
         new_query_point = copy.deepcopy(query_point)
         # the query point is the left point of the line segment
         if query_point == line_seg.p:
-            xDiff = (line_seg.q.x - query_point.x)
-            yDiff = (line_seg.q.y - query_point.y)
+            x_diff = (line_seg.q.x - query_point.x)
+            y_diff = (line_seg.q.y - query_point.y)
         elif query_point == line_seg.q:
             # the query point is the right point of the line segment
-            xDiff = (line_seg.p.x - query_point.x)
-            yDiff = (line_seg.p.y - query_point.y)
+            x_diff = (line_seg.p.x - query_point.x)
+            y_diff = (line_seg.p.y - query_point.y)
         else:
             raise ValueError('Invalid query point!')
 
         # (p2.x - p1.x) * t --> xDiff * t
-        new_query_point.x = query_point.x + xDiff * (0.1 / line_seg.getLength())
+        new_query_point.x = query_point.x + x_diff * (0.1 / line_seg.getLength())
 
         # (p2.y - p1.y) * t --> yDiff * t
-        new_query_point.y = query_point.y + yDiff * (0.1 / line_seg.getLength())
+        new_query_point.y = query_point.y + y_diff * (0.1 / line_seg.getLength())
 
         return new_query_point
 
