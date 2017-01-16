@@ -144,61 +144,61 @@ class LineSegment(GraphObject):
 
     def belowOther(self, other) -> bool:
         # if self is a vertical line segment
-        if self.isVertical and not other.isVertical:
-            # if one of the endpoints overlap
-            if self.p == other.p or self.p == other.q:
-                # we cant use this point
-                pass
-            else:
-                if other.aboveLine(self.p):
-                    # self is above so return false
-                    return False
-                else:
-                    return True
-
-            # if one of the endpoints overlap
-            if self.q == other.p or self.q == other.q:
-                # we cant use this point
-                pass
-            else:
-                if other.aboveLine(self.q):
-                    # self is above so return false
-                    return False
-                else:
-                    return True
-
-        # if other is a vertical line segment
-        if other.isVertical and not self.isVertical:
-            # if one of the endpoints overlap
-            if other.p == self.p or other.p == self.q:
-                # we cant use this point
-                pass
-            else:
-                if self.aboveLine(other.p):
-                    # other is above so return true
-                    return True
-                else:
-                    return False
-
-            # if one of the endpoints overlap
-            if other.q == self.p or other.q == self.q:
-                # we cant use this point
-                pass
-            else:
-                if self.aboveLine(other.q):
-                    # other is above so return true
-                    return True
-                else:
-                    return False
-
-        # if they are both vertical...
-        if self.isVertical and other.isVertical:
-            # self.q is always the highest point in this case
-            if self.q.y > other.q.y:
-                # the highest point of self is above the higest point of other
-                return False
-            else:
-                return True
+        # if self.isVertical and not other.isVertical:
+        #     # if one of the endpoints overlap
+        #     if self.p == other.p or self.p == other.q:
+        #         # we cant use this point
+        #         pass
+        #     else:
+        #         if other.aboveLine(self.p):
+        #             # self is above so return false
+        #             return False
+        #         else:
+        #             return True
+        #
+        #     # if one of the endpoints overlap
+        #     if self.q == other.p or self.q == other.q:
+        #         # we cant use this point
+        #         pass
+        #     else:
+        #         if other.aboveLine(self.q):
+        #             # self is above so return false
+        #             return False
+        #         else:
+        #             return True
+        #
+        # # if other is a vertical line segment
+        # if other.isVertical and not self.isVertical:
+        #     # if one of the endpoints overlap
+        #     if other.p == self.p or other.p == self.q:
+        #         # we cant use this point
+        #         pass
+        #     else:
+        #         if self.aboveLine(other.p):
+        #             # other is above so return true
+        #             return True
+        #         else:
+        #             return False
+        #
+        #     # if one of the endpoints overlap
+        #     if other.q == self.p or other.q == self.q:
+        #         # we cant use this point
+        #         pass
+        #     else:
+        #         if self.aboveLine(other.q):
+        #             # other is above so return true
+        #             return True
+        #         else:
+        #             return False
+        #
+        # # if they are both vertical...
+        # if self.isVertical and other.isVertical:
+        #     # self.q is always the highest point in this case
+        #     if self.q.y > other.q.y:
+        #         # the highest point of self is above the higest point of other
+        #         return False
+        #     else:
+        #         return True
 
         if self.aboveLine(other.p) and self.aboveLine(other.q):
             return True
