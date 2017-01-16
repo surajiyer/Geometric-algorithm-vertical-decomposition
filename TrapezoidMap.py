@@ -10,12 +10,13 @@ class TrapezoidMap:
         assert isinstance(trapezoids, list) and all(isinstance(n, Trapezoid) for n in trapezoids)
         self.trapezoids = trapezoids
 
-    def addTrapezoid(self, trapezoid):
-        assert isinstance(trapezoid, Trapezoid)
-        self.trapezoids.append(trapezoid)
+    def addTrapezoid(self, trapezoids):
+        assert isinstance(trapezoids, list) and all(isinstance(t, Trapezoid) for t in trapezoids)
+        self.trapezoids.extend(trapezoids)
 
-    def deleteTrapezoidFromMap(self, trapezoid):
-        self.trapezoids.remove(trapezoid)
+    def deleteTrapezoidFromMap(self, trapezoids):
+        self.trapezoids = [t for t in self.trapezoids if t not in trapezoids]
+        # self.trapezoids.remove(trapezoid)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__

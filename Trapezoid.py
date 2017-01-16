@@ -32,6 +32,7 @@ class Trapezoid(GraphObject):
     node = property(get_node, set_node)
 
     def setLeftNeighbors(self, neighbors):
+        # TODO: set self as right neighbor of neighbors + check if neighbor already exists
         assert isinstance(neighbors, list) and all(isinstance(n, Trapezoid) for n in neighbors)
 
         # there are no left neighbors
