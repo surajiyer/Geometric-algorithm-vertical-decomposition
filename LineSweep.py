@@ -60,8 +60,9 @@ class LineSweep:
         # TODO: handle start event point
         print("point", point, " is the startpoint of linesegment", linesegment)
         # insert the segment into the status
-        self.S.insert(linesegment, None)
-        print("inserted:", self.S)
+        self.S.insert(linesegment, linesegment)
+        print("inserted:", linesegment)
+        print(self.S)
 
         pred = self.getPred(linesegment)
         succ = self.getSucc(linesegment)
@@ -71,9 +72,9 @@ class LineSweep:
         elif case == "B":
             #make trapezoids with pred and/or succ
             if pred.p.x < succ.p.x:
-                self.T.addTrapezoid(Trapezoid(succ.p, point, succ, pred))
+                self.T.addTrapezoid([Trapezoid(succ.p, point, succ, pred)])
             else:
-                self.T.addTrapezoid(Trapezoid(pred.p, point, succ, pred))
+                self.T.addTrapezoid([Trapezoid(pred.p, point, succ, pred)])
         elif case == "C":
             raise ValueError ("This should not happen!")
         elif case == "D":
@@ -100,42 +101,55 @@ class LineSweep:
         if case == "A":
             # make a trapezoid with the current linesegment
             if pred.p.x <= linesegment.p.x:
-                self.T.addTrapezoid(Trapezoid(linesegment.p, linesegment.q, linesegment, pred))
+                self.T.addTrapezoid([Trapezoid(linesegment.p, linesegment.q, linesegment, pred)])
             elif pred.p.x > linesegment.p.x and pred.p.x < linesegment.q.x:
-                self.T.addTrapezoid(Trapezoid(pred.p, linesegment.q, linesegment, pred))
+                self.T.addTrapezoid([Trapezoid(pred.p, linesegment.q, linesegment, pred)])
             else:
                 # in this case we do not know bottom so do nothing
                 pass
 
             #also consider successor
             if succ.p.x <= linesegment.p.x:
-                self.T.addTrapezoid(Trapezoid(linesegment.p, linesegment.q, succ, linesegment))
+                self.T.addTrapezoid([Trapezoid(linesegment.p, linesegment.q, succ, linesegment)])
             elif pred.p.x > linesegment.p.x and pred.p.x < linesegment.q.x:
-                self.T.addTrapezoid(Trapezoid(succ.p, linesegment.q, succ, linesegment))
+                self.T.addTrapezoid([Trapezoid(succ.p, linesegment.q, succ, linesegment)])
             else:
                 # in this case we do not know bottom so do nothing
                 pass
         elif case == "B":
             raise ValueError("this should not be possible!")
         elif case == "C":
+
+            if(linesegment > otherline):
+                # the current line is the top line
+                #make a trapezoid to the left
+                if succ.p.x < linesegment.p.x:
+                    self.T.addTrapezoid([Trapezoid(linesegment.p, point, succ, linesegment)])
+                else:
+                    self.T.addTrapezoid([Trapezoid(succ.p, point, succ, linesegment)])
+
+            if(linesegment < otherline):
+                # the current line is the bottom one
+                # make a trapezoid to the left
+                if pred.p.x < linesegment.p.x:
+                    self.T.addTrapezoid([Trapezoid(linesegment.p, point, linesegment, pred)])
+                else:
+                    self.T.addTrapezoid([Trapezoid(pred.p, point, linesegment, pred)])
+
             # first check the pred and succ of the current line
             if pred == otherline:
-                #the current line is the top line, get a new predecessor
+                # get a new predecessor
                 pred = self.getPred(otherline)
-                #make a trapezoid to the left
-                self.T.addTrapezoid(Trapezoid(succ.p, point, succ, linesegment))
 
             if succ == otherline:
-                #the current line is the bottom one, get a new successor
+                # get a new successor
                 succ = self.getSucc(otherline)
-                # make a trapezoid to the left
-                self.T.addTrapezoid(Trapezoid(pred.p, point, linesegment, pred))
 
             # make trapezoids with pred and/or succ to the right
             if pred.q.x < succ.q.x:
-                self.T.addTrapezoid(Trapezoid(point, pred.q, succ, pred))
+                self.T.addTrapezoid([Trapezoid(point, pred.q, succ, pred)])
             else:
-                self.T.addTrapezoid(Trapezoid(point, succ.q, succ, pred))
+                self.T.addTrapezoid([Trapezoid(point, succ.q, succ, pred)])
 
         elif case == "D":
             pass
@@ -150,22 +164,31 @@ class LineSweep:
 
         # remove the linesegment from the status
         self.S.remove(linesegment)
-        print("removed:", self.S)
+        print("removed:", linesegment)
+        print(self.S)
 
     def getPred(self, linesegment) -> LineSegment:
-        assert(isinstance( linesegment, LineSegment))
+        assert(isinstance(linesegment, LineSegment))
         try:
             return self.S.prev_key(linesegment)
         except KeyError:
-            print(linesegment, "had no predecessor")
+            if(not self.S.__contains__(linesegment)):
+                #linesegment not found in the tree!, inserting again and finding predecessor
+                self.S.insert(linesegment, linesegment)
+                return self.S.prev_key(linesegment)
+            print("linesegment was there but there was no predecessor")
             return None
 
     def getSucc(self, linesegment) -> LineSegment:
-        assert(isinstance( linesegment, LineSegment))
+        assert(isinstance(linesegment, LineSegment))
         try:
             return self.S.succ_key(linesegment)
         except KeyError:
-            print(linesegment, "had no predecessor")
+            if (not self.S.__contains__(linesegment)):
+                # linesegment not found in the tree!, inserting again and finding predecessor
+                self.S.insert(linesegment, linesegment)
+                return self.S.succ_key(linesegment)
+            print("linesegment was there but there was no successor")
             return None
 
     def initEventStructure(self):

@@ -22,7 +22,7 @@ class Polygon:
         # random.shuffle(self.E)
 
         # check if points represent a simple polygon
-        #assert self.is_simple_polygon, 'Input polygon must be simple'
+        # assert self.is_simple_polygon, 'Input polygon must be simple'
 
     @property
     def is_general_position(self) -> bool:

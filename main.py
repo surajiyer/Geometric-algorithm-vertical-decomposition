@@ -91,12 +91,14 @@ if __name__ == '__main__':
     #     print(trap.right_neighbors)
     # visualize(P, T)
 
-    P = load_input('Data/test_0.txt')
+    P = load_input('Data/dataPolygon.txt')
     # Initialize algorithm (also computes the map already)
     R = LineSweep(P)
-    print(LineSegment(Point(3, 3), Point(7, 3)) > LineSegment(Point(4, 4), Point(5, 7)))
     T = R.getTrapezoidalMap()
+    for trap in T.trapezoids:
+        print(trap)
     visualize(P, T)
+
 
     # # testing aboveLine method
     # P = Point(1, 0)
