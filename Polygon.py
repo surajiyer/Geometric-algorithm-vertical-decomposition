@@ -19,7 +19,7 @@ class Polygon:
             self.E.append(LineSegment(p, points[(i + 1) % len(points)]))
 
         # check if points represent a simple polygon
-        assert self.is_simple_polygon, 'Input polygon must be simple'
+        #assert self.is_simple_polygon, 'Input polygon must be simple'
 
     @property
     def is_general_position(self) -> bool:
