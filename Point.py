@@ -26,8 +26,20 @@ class Point(GraphObject):
     x = property(get_x, set_x)
     y = property(get_y, set_y)
 
+    def __hash__(self):
+        return super().__hash__()
+
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        """Override the default Equals behavior"""
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        return NotImplemented
+
+    def __ne__(self, other):
+        """Define a non-equality test"""
+        if isinstance(other, self.__class__):
+            return not self == other
+        return NotImplemented
 
     def __repr__(self):
-        return '(%d, %d)' % (self.x, self.y)
+        return '(%.2f, %.2f)' % (self.x, self.y)

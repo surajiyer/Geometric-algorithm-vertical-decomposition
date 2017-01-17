@@ -2,6 +2,7 @@ from Point import Point
 from LineSegment import LineSegment
 from GraphObject import GraphObject
 import DAGNode as dag
+import copy
 
 
 class Trapezoid(GraphObject):
@@ -19,8 +20,8 @@ class Trapezoid(GraphObject):
         self.right_p = right_p
         self.top = top
         self.bottom = bottom
-        self.left_neighbors = []
-        self.right_neighbors = []
+        self.left_neighbors = list()
+        self.right_neighbors = list()
         self._node = dag.DAGNode(self)
 
     def set_node(self, node):
@@ -32,7 +33,6 @@ class Trapezoid(GraphObject):
     node = property(get_node, set_node)
 
     def setLeftNeighbors(self, neighbors):
-        # TODO: set self as right neighbor of neighbors + check if neighbor already exists
         assert isinstance(neighbors, list) and all(isinstance(n, Trapezoid) for n in neighbors)
 
         # there are no left neighbors
@@ -46,18 +46,20 @@ class Trapezoid(GraphObject):
         elif self.left_p == self.top.p:
             l = self.bottom
             y_high = self.left_p.y
-            y_low = l.getSlope() * self.left_p.x + l.getIntercept()
+            y_low = l.slope * self.left_p.x + l.intercept
         elif self.left_p == self.bottom.p:
             l = self.top
-            y_high = l.getSlope() * self.left_p.x + l.getIntercept()
+            y_high = l.slope * self.left_p.x + l.intercept
             y_low = self.left_p.y
         else:
             l = self.bottom
-            y_low = l.getSlope() * self.left_p.x + l.getIntercept()
+            y_low = l.slope * self.left_p.x + l.intercept
             l = self.top
-            y_high = l.getSlope() * self.left_p.x + l.getIntercept()
+            y_high = l.slope * self.left_p.x + l.intercept
 
         for n in neighbors:
+            if n in self.left_neighbors:
+                continue
             if self.left_p.x == n.right_p.x:
                 if n.left_p.x == n.right_p.x:
                     """ zero-width trapezoid """
@@ -66,22 +68,23 @@ class Trapezoid(GraphObject):
                 elif n.right_p == n.top.q:
                     l = n.bottom
                     ny_high = n.right_p.y
-                    ny_low = l.getSlope() * n.right_p.x + l.getIntercept()
+                    ny_low = l.slope * n.right_p.x + l.intercept
                 elif n.right_p == n.bottom.q:
                     l = n.top
-                    ny_high = l.getSlope() * n.right_p.x + l.getIntercept()
+                    ny_high = l.slope * n.right_p.x + l.intercept
                     ny_low = n.right_p.y
                 else:
                     l = n.bottom
-                    ny_low = l.getSlope() * n.right_p.x + l.getIntercept()
+                    ny_low = l.slope * n.right_p.x + l.intercept
                     l = n.top
-                    ny_high = l.getSlope() * n.right_p.x + l.getIntercept()
+                    ny_high = l.slope * n.right_p.x + l.intercept
 
                 # sides overlap
                 if ny_low < y_high < ny_high or ny_low < y_low < ny_high \
                         or y_low < ny_low < y_high or y_low < ny_high < y_high \
                         or (y_low == ny_low and y_high == ny_high):
                     self.left_neighbors.append(n)
+                    n.setRightNeighbors([self])
 
     def setRightNeighbors(self, neighbors):
         assert isinstance(neighbors, list) and all(isinstance(n, Trapezoid) for n in neighbors)
@@ -96,18 +99,20 @@ class Trapezoid(GraphObject):
         elif self.right_p == self.top.q:
             l = self.bottom
             y_high = self.right_p.y
-            y_low = l.getSlope() * self.right_p.x + l.getIntercept()
+            y_low = l.slope * self.right_p.x + l.intercept
         elif self.right_p == self.bottom.q:
             l = self.top
-            y_high = l.getSlope() * self.right_p.x + l.getIntercept()
+            y_high = l.slope * self.right_p.x + l.intercept
             y_low = self.right_p.y
         else:
             l = self.bottom
-            y_low = l.getSlope() * self.right_p.x + l.getIntercept()
+            y_low = l.slope * self.right_p.x + l.intercept
             l = self.top
-            y_high = l.getSlope() * self.right_p.x + l.getIntercept()
+            y_high = l.slope * self.right_p.x + l.intercept
 
         for n in neighbors:
+            if n in self.right_neighbors:
+                continue
             if self.right_p.x == n.left_p.x:
                 if n.left_p.x == n.right_p.x:
                     """ zero-width trapezoid """
@@ -116,26 +121,45 @@ class Trapezoid(GraphObject):
                 elif n.left_p == n.top.p:
                     l = n.bottom
                     ny_high = n.left_p.y
-                    ny_low = l.getSlope() * n.left_p.x + l.getIntercept()
+                    ny_low = l.slope * n.left_p.x + l.intercept
                 elif n.left_p == n.bottom.p:
                     l = n.top
-                    ny_high = l.getSlope() * n.left_p.x + l.getIntercept()
+                    ny_high = l.slope * n.left_p.x + l.intercept
                     ny_low = n.left_p.y
                 else:
                     l = n.bottom
-                    ny_low = l.getSlope() * n.left_p.x + l.getIntercept()
+                    ny_low = l.slope * n.left_p.x + l.intercept
                     l = n.top
-                    ny_high = l.getSlope() * n.left_p.x + l.getIntercept()
+                    ny_high = l.slope * n.left_p.x + l.intercept
 
                 # sides overlap
                 if ny_low < y_high < ny_high or ny_low < y_low < ny_high \
                         or y_low < ny_low < y_high or y_low < ny_high < y_high \
                         or (y_low == ny_low and y_high == ny_high):
                     self.right_neighbors.append(n)
+                    n.setLeftNeighbors([self])
+
+    def __hash__(self):
+        return super().__hash__()
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        """Override the default Equals behavior"""
+        if isinstance(other, self.__class__):
+            # x, y = copy.copy(self.__dict__), copy.copy(other.__dict__)
+            # x.pop("_node", None)
+            # y.pop("_node", None)
+            # return x == y
+            # return self.__dict__ == other.__dict__
+            return self.left_p == other.left_p and self.right_p == other.right_p \
+                   and self.top == other.top and self.bottom == other.bottom
+        return super().__eq__(other)
+
+    def __ne__(self, other):
+        """Define a non-equality test"""
+        if isinstance(other, self.__class__):
+            return not self == other
+        return NotImplemented
 
     def __repr__(self):
-        return '<Trapezoid left_p:%s right_p:%s top:%s bottom:%s >' % (str(self.left_p), str(self.right_p),
-                                                                       str(self.top), str(self.bottom))
+        return '<Trapezoid left_p:%s right_p:%s top:%s bottom:%s>' % (str(self.left_p), str(self.right_p),
+                                                                      str(self.top), str(self.bottom))

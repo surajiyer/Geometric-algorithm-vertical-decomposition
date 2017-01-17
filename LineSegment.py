@@ -31,19 +31,20 @@ class LineSegment(GraphObject):
         else:
             self.isVertical = False
 
-        self.len = math.sqrt(math.pow(p.x - q.x, 2) + math.pow(p.y - q.y, 2))
+    @property
+    def len(self):
+        return math.pow(self.q.x - self.p.x, 2) + math.pow(self.q.y - self.p.y, 2)
 
-    def getLength(self):
-        return self.len
-
-    def getSlope(self):
+    @property
+    def slope(self):
         return None if self.isVertical else (self.q.y - self.p.y) / (self.q.x - self.p.x)
 
-    def getIntercept(self):
-        return self.p.y - self.getSlope() * self.p.x
+    @property
+    def intercept(self):
+        return self.p.y - self.slope * self.p.x
 
-    def getY(self, x):
-        return Point(x, self.getSlope() * x + self.getIntercept())
+    def get_Y(self, x):
+        return Point(x, self.slope * x + self.intercept)
 
     @staticmethod
     def on_segment(p, q, r):
@@ -85,7 +86,7 @@ class LineSegment(GraphObject):
         """
         assert isinstance(point, Point)
         if self.isVertical:
-            raise ValueError ("Above line is not defined for Vertical segments")
+            raise ValueError("Above line is not defined for Vertical segments")
         v1x = self.q.x - self.p.x  # Vector 1.x
         v1y = self.q.y - self.p.y  # Vector 1.y
         v2x = self.q.x - point.x  # Vector 2.x
@@ -209,17 +210,29 @@ class LineSegment(GraphObject):
         # return false if none of the above statements returned true
         return False
 
+    def __hash__(self):
+        return super().__hash__()
+
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        """Override the default Equals behavior"""
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        return NotImplemented
+
+    def __ne__(self, other):
+        """Define a non-equality test"""
+        if isinstance(other, self.__class__):
+            return not self == other
+        return NotImplemented
 
     def __lt__(self, other):
-        #print(self, "is below", other, " : ", self.belowOther(other))
-        #returns if self is below the other line segment
+        # print(self, "is below", other, " : ", self.belowOther(other))
+        # returns if self is below the other line segment
         return self.belowOther(other)
 
     def __gt__(self, other):
-        #print(self, "is above", other," : " ,not self.belowOther(other))
-        #returns if self is above the other line segment
+        # print(self, "is above", other," : " ,not self.belowOther(other))
+        # returns if self is above the other line segment
         return not self.belowOther(other)
 
     def __repr__(self):
