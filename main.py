@@ -85,12 +85,13 @@ if __name__ == '__main__':
     P = load_input(file_name=file_name)
 
     # Initialize algorithm (also computes the map already)
-
     start = time.time()
-    R = LineSweep(P)
+    # R = LineSweep(P)
+    R = RandomizedIncrementalConstruction(P)
     end = time.time()
     print((end-start)*1000)
-    T = R.getTrapezoidalMap()
 
     # Visualize the map
+    T = R.getTrapezoidalMap()
     visualize(P, T)
+    T.visualize_graph()

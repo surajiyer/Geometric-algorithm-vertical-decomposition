@@ -174,12 +174,12 @@ class LineSegment(GraphObject):
 
     def __lt__(self, other):
         # print(self, "is below", other, " : ", self.belowOther(other))
-        #returns if self is below the other line segment
+        # returns if self is below the other line segment
         return self.belowOther(other)
 
     def __gt__(self, other):
         # print(self, "is above", other," : " ,not self.belowOther(other))
-        #returns if self is above the other line segment
+        # returns if self is above the other line segment
         return not self.belowOther(other)
 
     def __repr__(self):
