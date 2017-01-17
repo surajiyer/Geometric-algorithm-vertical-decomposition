@@ -18,6 +18,7 @@ def load_input(file_name):
         for i in range(n):
             line = file.readline()
             line = [int(l) for l in line.split()]
+            print(line)
             # We add 1 to every value such that we can always make a bounding
             # box around the coordinates s.t. the bounding box does not intersect
             # with for example a point (0, 0)
@@ -106,7 +107,7 @@ if __name__ == '__main__':
     # print("small3 > small2", small3 > small2)
     # print("small2 > small1", small2 > small1)
 
-    P = load_input('Data/dataPolygon.txt')
+    P = load_input('Data/charizard.txt')
     # Initialize algorithm (also computes the map already)
     R = LineSweep(P)
     T = R.getTrapezoidalMap()

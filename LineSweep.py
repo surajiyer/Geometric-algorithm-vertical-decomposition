@@ -23,6 +23,11 @@ class LineSweep:
 
     def lineSweep(self):
         self.T = TrapezoidMap([])
+
+        # keeps track of edges that should be removed from S later on
+        self.clearBuffer = False
+        self.buffer = []
+
         # first initialize the event structure
         self.initEventStructure()
         # now compute the bounding box
@@ -30,6 +35,9 @@ class LineSweep:
         # now loop over the event points
         for event in self.Q:
             self.handleEventPoint(event)
+            # check if the buffer needs to be cleared
+            if (self.clearBuffer):
+                self.emptyBuffer()
 
         #now just add the last trapezoid
         self.T.addTrapezoid([Trapezoid(self.Q[-3][0], self.Q[-1][0], self.Q[-1][2], self.Q[-2][2])])
@@ -56,6 +64,16 @@ class LineSweep:
                 self.handleEndPoint(event[0], event[3], event[1], event[2])
             else:
                 raise ValueError("point is not part of the linesegment")
+
+    # removes all edges from the status that are in the buffer
+    def emptyBuffer(self):
+        for edge in self.buffer:
+            print("edge", edge, "removed from buffer")
+            self.S.remove(edge)
+
+        self.buffer.clear()
+        self.clearBuffer = False
+        print("empty buffer complete")
 
     def handleStartPoint(self, point, linesegment, case = None, otherline = None):
         assert isinstance(point, Point)
@@ -109,7 +127,10 @@ class LineSweep:
         # TODO: handle end event point
         print("point", point, " is the endpoint of linesegment", linesegment)
 
+        donotremove = False
+
         if not linesegment.isVertical:
+
             pred = self.getPred(linesegment)
             succ = self.getSucc(linesegment)
 
@@ -166,6 +187,12 @@ class LineSweep:
                 while pred.p.x == point.x:
                     pred = self.getPred(pred)
 
+                #line segment is the nonvertical one, we check if linesegment is connected to the bottom of the vertical edge
+                if(linesegment.aboveLine(otherline.q) and linesegment.aboveLine(otherline.p)):
+                    print("edge:", linesegment, "added to buffer")
+                    self.buffer.append(linesegment)
+                    donotremove = True
+
                 if succ.p.x <= linesegment.p.x:
                     self.T.addTrapezoid([Trapezoid(linesegment.p, linesegment.q, succ, linesegment)])
                 elif succ.p.x > linesegment.p.x and succ.p.x < linesegment.q.x:
@@ -183,10 +210,16 @@ class LineSweep:
                 # the event point is on the bounding box
                 pass
 
-            # remove the linesegment from the status
-            self.S.remove(linesegment)
-            print("removed:", linesegment)
-            print(self.S)
+            #only if there are no edges in the buffer, remove the edge
+            if not donotremove:
+                # remove the linesegment from the status
+                self.S.remove(linesegment)
+                print("removed:", linesegment)
+
+        elif linesegment.isVertical:
+            print("clearbuffer set to true!")
+            # we wish to clear the buffer after this event point
+            self.clearBuffer = True
 
     def getPred(self, linesegment) -> LineSegment:
         assert(isinstance(linesegment, LineSegment))
