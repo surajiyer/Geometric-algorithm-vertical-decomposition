@@ -135,36 +135,29 @@ class LineSweep:
                 raise ValueError("this should not be possible!")
             elif case == "C":
 
+                # special case: keep getting predecessors until this does not hold anymore
+                while succ.p.x == point.x:
+                    succ = self.getSucc(succ)
+
+                # special case: keep getting predecessors until this does not hold anymore
+                while pred.p.x == point.x:
+                    pred = self.getPred(pred)
+
                 if(linesegment > otherline):
                     # the current line is the top line
                     #make a trapezoid to the left
-                    if succ.p.x < linesegment.p.x:
+                    if succ.p.x <= linesegment.p.x:
                         self.T.addTrapezoid([Trapezoid(linesegment.p, point, succ, linesegment)])
-                    else:
+                    elif succ.p.x > linesegment.p.x and succ.p.x < linesegment.q.x:
                         self.T.addTrapezoid([Trapezoid(succ.p, point, succ, linesegment)])
 
                 if(linesegment < otherline):
                     # the current line is the bottom one
                     # make a trapezoid to the left
-                    if pred.p.x < linesegment.p.x:
+                    if pred.p.x <= linesegment.p.x:
                         self.T.addTrapezoid([Trapezoid(linesegment.p, point, linesegment, pred)])
-                    else:
+                    elif pred.p.x > linesegment.p.x and succ.p.x < linesegment.q.x:
                         self.T.addTrapezoid([Trapezoid(pred.p, point, linesegment, pred)])
-
-                # first check the pred and succ of the current line
-                if pred == otherline:
-                    # get a new predecessor
-                    pred = self.getPred(otherline)
-
-                if succ == otherline:
-                    # get a new successor
-                    succ = self.getSucc(otherline)
-
-                # make trapezoids with pred and/or succ to the right
-                if pred.q.x < succ.q.x:
-                    self.T.addTrapezoid([Trapezoid(point, pred.q, succ, pred)])
-                else:
-                    self.T.addTrapezoid([Trapezoid(point, succ.q, succ, pred)])
 
             elif case == "D":
                 raise ValueError("This should not happen")
@@ -201,11 +194,6 @@ class LineSweep:
         try:
             return self.S.prev_key(linesegment)
         except KeyError:
-            # if(not self.S.__contains__(linesegment)):
-            #     #linesegment not found in the tree!, inserting again and finding predecessor
-            #     self.S.insert(linesegment, linesegment)
-            #     return self.S.prev_key(linesegment)
-            print("linesegment was there but there was no predecessor")
             return None
 
     def getSucc(self, linesegment) -> LineSegment:
@@ -214,11 +202,6 @@ class LineSweep:
         try:
             return self.S.succ_key(linesegment)
         except KeyError:
-            # if (not self.S.__contains__(linesegment)):
-            #     # linesegment not found in the tree!, inserting again and finding predecessor
-            #     self.S.insert(linesegment, linesegment)
-            #     return self.S.succ_key(linesegment)
-            print("linesegment was there but there was no successor")
             return None
 
     def initEventStructure(self):
@@ -302,18 +285,18 @@ class LineSweep:
                 bottomLeft.set_y(point.get_y() - 1)
 
         #define bounding box edges
-        topEdge = LineSegment(Point(bottomLeft.x, topRight.y), Point(topRight.x, topRight.y))
-        bottomEdge = LineSegment(Point(bottomLeft.x, bottomLeft.y), Point(topRight.x, bottomLeft.y))
+        self.topEdge = LineSegment(Point(bottomLeft.x, topRight.y), Point(topRight.x, topRight.y))
+        self.bottomEdge = LineSegment(Point(bottomLeft.x, bottomLeft.y), Point(topRight.x, bottomLeft.y))
 
         # based on the bounding box dimensions we add events to Q
         # first insert the top left point of the bounding box since it should be the second event
-        self.Q.insert(0, [topEdge.p, "G", topEdge])
+        self.Q.insert(0, [self.topEdge.p, "G", self.topEdge])
         # then insert the bottom left point of the bounding box since it should be the first event
-        self.Q.insert(0, [bottomEdge.p, "G", bottomEdge])
+        self.Q.insert(0, [self.bottomEdge.p, "G", self.bottomEdge])
         # then append the bottom right point as it should be the second to last event
-        self.Q.append([bottomEdge.q, "G", bottomEdge])
+        self.Q.append([self.bottomEdge.q, "G", self.bottomEdge])
         # and finally append the top right point
-        self.Q.append([topEdge.q, "G", topEdge])
+        self.Q.append([self.topEdge.q, "G", self.topEdge])
 
         print("Event Structure: ", self.Q)
 
