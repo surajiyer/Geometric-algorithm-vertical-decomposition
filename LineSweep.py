@@ -68,23 +68,18 @@ class LineSweep:
     # removes all edges from the status that are in the buffer
     def emptyBuffer(self):
         for edge in self.buffer:
-            print("edge", edge, "removed from buffer")
             self.S.remove(edge)
 
         self.buffer.clear()
         self.clearBuffer = False
-        print("empty buffer complete")
 
     def handleStartPoint(self, point, linesegment, case = None, otherline = None):
         assert isinstance(point, Point)
         assert isinstance(linesegment, LineSegment)
-        # TODO: handle start event point
-        print("point", point, " is the startpoint of linesegment", linesegment)
+
         # insert the segment into the status
         if(not linesegment.isVertical):
             self.S.insert(linesegment, linesegment)
-            print("inserted:", linesegment)
-            print(self.S)
 
             pred = self.getPred(linesegment)
             succ = self.getSucc(linesegment)
@@ -124,8 +119,6 @@ class LineSweep:
     def handleEndPoint(self, point, linesegment, case, otherline = None):
         assert isinstance(point, Point)
         assert isinstance(linesegment, LineSegment)
-        # TODO: handle end event point
-        print("point", point, " is the endpoint of linesegment", linesegment)
 
         donotremove = False
 
@@ -189,7 +182,6 @@ class LineSweep:
 
                 #line segment is the nonvertical one, we check if linesegment is connected to the bottom of the vertical edge
                 if(linesegment.aboveLine(otherline.q) and linesegment.aboveLine(otherline.p)):
-                    print("edge:", linesegment, "added to buffer")
                     self.buffer.append(linesegment)
                     donotremove = True
 
@@ -214,10 +206,8 @@ class LineSweep:
             if not donotremove:
                 # remove the linesegment from the status
                 self.S.remove(linesegment)
-                print("removed:", linesegment)
 
         elif linesegment.isVertical:
-            print("clearbuffer set to true!")
             # we wish to clear the buffer after this event point
             self.clearBuffer = True
 
@@ -330,6 +320,4 @@ class LineSweep:
         self.Q.append([self.bottomEdge.q, "G", self.bottomEdge])
         # and finally append the top right point
         self.Q.append([self.topEdge.q, "G", self.topEdge])
-
-        print("Event Structure: ", self.Q)
 
