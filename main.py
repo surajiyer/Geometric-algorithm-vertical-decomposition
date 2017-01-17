@@ -1,5 +1,6 @@
 from Polygon import Polygon, Point, LineSegment
 from RandomizedIncrementalConstruction import RandomizedIncrementalConstruction
+import time
 from LineSweep import LineSweep
 import matplotlib.pyplot as plt
 
@@ -75,7 +76,6 @@ def visualize(P, MAP):
     x_s = [p.x for p in P.V]
     y_s = [p.y for p in P.V]
     plt.fill(x_s, y_s, 'b')
-    plt.grid(True)
     plt.show()
 
 
@@ -85,29 +85,12 @@ if __name__ == '__main__':
     P = load_input(file_name=file_name)
 
     # Initialize algorithm (also computes the map already)
-    R = RandomizedIncrementalConstruction(P)
+
+    start = time.time()
+    R = LineSweep(P)
+    end = time.time()
+    print((end-start)*1000)
     T = R.getTrapezoidalMap()
 
     # Visualize the map
     visualize(P, T)
-    T.visualize_graph()
-
-    # P = load_input('Data/test_0.txt')
-    # # Initialize algorithm (also computes the map already)
-    # R = LineSweep(P)
-    # print(LineSegment(Point(3, 3), Point(7, 3)) > LineSegment(Point(4, 4), Point(5, 7)))
-    # T = R.getTrapezoidalMap()
-    # visualize(P, T)
-
-    # # testing aboveLine method
-    # P = Point(1, 0)
-    # L = LineSegment(Point(5, 5), Point(1, 1))
-    # L.aboveLine(P)
-    #
-    # # testing trapezoid initialization
-    # T = Trapezoid(Point(2, 3), Point(3, 2), LineSegment(Point(4, 3), Point(3, 3)),
-    #               LineSegment(Point(1, 5), Point(6, 7)))
-    # print(T)
-    #
-    # trapezoidal_map = decompose(P)
-    # visualize(trapezoidal_map)
