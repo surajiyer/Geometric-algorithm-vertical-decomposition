@@ -89,7 +89,6 @@ class DAGNode:
 
         # we are a leaf node
         elif isinstance(self.graph_object, Trapezoid.Trapezoid):
-            # we are a leaf
             return self, query_point_existed
 
         # we have no idea what we are doing

@@ -31,7 +31,7 @@ def load_input(file_name):
 
 if __name__ == '__main__':
     # make polygon based on input
-    P = load_input('Data/test_2.txt')
+    P = load_input('Data/gen_400.txt')
 
     # Initialize algorithm (also computes the map already)
     times = []

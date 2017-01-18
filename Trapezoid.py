@@ -4,8 +4,6 @@ from GraphObject import GraphObject
 import DAGNode as dag
 from llist import dllistnode
 
-import copy
-
 
 class Trapezoid(GraphObject):
     """
@@ -35,7 +33,7 @@ class Trapezoid(GraphObject):
     def node(self, node):
         self._node.modify(node)
 
-    def setLeftNeighbors(self, neighbors):
+    def setLeftNeighbors(self, neighbors, auto=False):
         assert isinstance(neighbors, set) and all(isinstance(n, Trapezoid) for n in neighbors)
 
         if not neighbors:
@@ -90,9 +88,10 @@ class Trapezoid(GraphObject):
                         or y_low < ny_low < y_high or y_low < ny_high < y_high \
                         or (y_low == ny_low and y_high == ny_high):
                     self.left_neighbors.add(n)
-                    n.setRightNeighbors({self})
+                    if not auto:
+                        n.setRightNeighbors({self}, auto=True)
 
-    def setRightNeighbors(self, neighbors):
+    def setRightNeighbors(self, neighbors, auto=False):
         assert isinstance(neighbors, set) and all(isinstance(n, Trapezoid) for n in neighbors)
 
         if not neighbors:
@@ -146,7 +145,8 @@ class Trapezoid(GraphObject):
                         or y_low < ny_low < y_high or y_low < ny_high < y_high \
                         or (y_low == ny_low and y_high == ny_high):
                     self.right_neighbors.add(n)
-                    n.setLeftNeighbors({self})
+                    if not auto:
+                        n.setLeftNeighbors({self})
 
     def __hash__(self):
         return super().__hash__()
