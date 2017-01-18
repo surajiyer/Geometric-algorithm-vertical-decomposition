@@ -1,6 +1,7 @@
 from Polygon import Polygon, Point
 from RandomizedIncrementalConstruction import RandomizedIncrementalConstruction
 import time
+import gc
 from LineSweep import LineSweep
 import matplotlib.pyplot as plt
 
@@ -81,17 +82,23 @@ def visualize(P, MAP):
 
 if __name__ == '__main__':
     # make polygon based on input
-    file_name = 'Data/test_2.txt'
-    P = load_input(file_name=file_name)
+    P = load_input('Data/gen_10000.txt')
 
     # Initialize algorithm (also computes the map already)
-    start = time.time()
-    # R = LineSweep(P)
-    R = RandomizedIncrementalConstruction(P)
-    end = time.time()
-    print("Execution time:", (end-start)*1000)
+    times = []
+    for i in range(0, 10):
+        start = time.time()
+        R = RandomizedIncrementalConstruction(P)
+        end = time.time()
+        print("Execution time:", (end-start)*1000)
+        times.append((end-start)*1000)
 
-    # Visualize the map
-    T = R.getTrapezoidalMap()
-    visualize(P, T)
-    T.visualize_graph()
+        # Visualize the map
+        T = R.getTrapezoidalMap()
+        visualize(P, T)
+        T.visualize_graph()
+
+        # Garbage collection
+        if (i != 9):
+            R = None
+            gc.collect()
