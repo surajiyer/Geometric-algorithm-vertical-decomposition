@@ -12,7 +12,7 @@ class Polygon:
         self.V = points
 
         # check if points assume general position
-        # assert self.is_general_position, 'Input points must have distinct x-coordinates'
+        assert self.is_general_position, 'Input points must have distinct x-coordinates'
 
         # create edges and randomize
         self.E = []
@@ -22,7 +22,7 @@ class Polygon:
         # random.shuffle(self.E)
 
         # check if points represent a simple polygon
-        # assert self.is_simple_polygon, 'Input polygon must be simple'
+        assert self.is_simple_polygon, 'Input polygon must be simple'
 
     @property
     def is_general_position(self) -> bool:
@@ -32,6 +32,7 @@ class Polygon:
         :return:
         """
         x_s = [p.x for p in self.V]
+        print(sorted(x_s))
         return len(x_s) == len(set(x_s))
 
     @property
