@@ -1,3 +1,4 @@
+from Polygon import Polygon
 from Trapezoid import Trapezoid
 from DAG import DAG
 # from llist import dllist
@@ -13,33 +14,33 @@ class TrapezoidMap:
 
     def __init__(self, trapezoids):
         assert isinstance(trapezoids, list) and all(isinstance(n, Trapezoid) for n in trapezoids)
-        self.trapezoids = trapezoids
+        self.trapezoids = set(trapezoids)
         # self.trapezoids = dllist(trapezoids)
         self.G = None
 
-    def addTrapezoid(self, trapezoids):
-        assert isinstance(trapezoids, list) and all(isinstance(t, Trapezoid) for t in trapezoids)
-        self.trapezoids.extend(trapezoids)
+    def addTrapezoid(self, trapezoids: set):
+        assert isinstance(trapezoids, set) and all(isinstance(t, Trapezoid) for t in trapezoids)
+        self.trapezoids.union(trapezoids)
         # self.trapezoids.extendright(trapezoids)
 
-    def deleteTrapezoidFromMap(self, trapezoids):
-        assert isinstance(trapezoids, list) and all(isinstance(t, Trapezoid) for t in trapezoids)
-        self.trapezoids = [t for t in self.trapezoids if t not in trapezoids]
+    def deleteTrapezoidFromMap(self, trapezoids: set):
+        assert isinstance(trapezoids, set) and all(isinstance(t, Trapezoid) for t in trapezoids)
+        # self.trapezoids = [t for t in self.trapezoids if t not in trapezoids]
         for t in trapezoids:
-            try:
-                for n in t.left_neighbors:
-                    n.right_neighbors.discard(t)
-                for n in t.right_neighbors:
-                    n.left_neighbors.discard(t)
-            except ValueError:
-                pass
-        # self.trapezoids.remove(trapezoid)
+            self.trapezoids.discard(t)
+            for n in t.left_neighbors:
+                n.right_neighbors.discard(t)
+            for n in t.right_neighbors:
+                n.left_neighbors.discard(t)
 
     def visualize(self, P=None):
         """
         Visualize the given trapezoidal map with matplotlib
+        :param P: Polygon
         :return:
         """
+        assert P is None or isinstance(P, Polygon)
+
         # Draw the trapezoidal map
         for trapezoid in self.trapezoids:
             y_s = []

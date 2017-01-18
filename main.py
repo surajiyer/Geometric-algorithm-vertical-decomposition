@@ -31,24 +31,24 @@ def load_input(file_name):
 
 if __name__ == '__main__':
     # make polygon based on input
-    P = load_input('Data/gen_20.txt')
+    P = load_input('Data/test_2.txt')
 
     # Initialize algorithm (also computes the map already)
     times = []
-    # for i in range(0, 10):
-    #     start = time.time()
-    #     print('---------------- TEST %d ----------------' % i)
-    R = RandomizedIncrementalConstruction(P)
-        # end = time.time()
-        # print("Execution time:", (end-start)*1000)
-        # times.append((end-start)*1000)
-        #
-        # # Garbage collection
-        # if i != 9:
-        #     R = None
-        #     gc.collect()
+    for i in range(0, 1):
+        start = time.time()
+        # print('---------------- TEST %d ----------------' % i)
+        R = RandomizedIncrementalConstruction(P)
+        end = time.time()
+        print((end-start)*1000)
+        times.append((end-start)*1000)
+
+        # Garbage collection
+        if i != 0:
+            R = None
+            gc.collect()
 
     # Visualize the map
     T = R.getTrapezoidalMap()
     T.visualize(P)
-    T.visualize_graph()
+    # T.visualize_graph()

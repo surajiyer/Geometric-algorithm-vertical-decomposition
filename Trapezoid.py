@@ -33,6 +33,10 @@ class Trapezoid(GraphObject):
     def node(self, node):
         self._node.modify(node)
 
+    @property
+    def is_zero_width(self):
+        return self.left_p.x == self.right_p.x
+
     def setLeftNeighbors(self, neighbors, auto=False):
         assert isinstance(neighbors, set) and all(isinstance(n, Trapezoid) for n in neighbors)
 
@@ -43,7 +47,7 @@ class Trapezoid(GraphObject):
         if self.top.p == self.bottom.p:
             return
 
-        if self.left_p.x == self.right_p.x:
+        if self.is_zero_width:
             """ zero-width trapezoid """
             y_high = self.left_p.y
             y_low = self.right_p.y
@@ -65,7 +69,7 @@ class Trapezoid(GraphObject):
             if n in self.left_neighbors:
                 continue
             if self.left_p.x == n.right_p.x:
-                if n.left_p.x == n.right_p.x:
+                if n.is_zero_width:
                     """ zero-width trapezoid """
                     ny_high = n.left_p.y
                     ny_low = n.right_p.y
@@ -101,7 +105,7 @@ class Trapezoid(GraphObject):
         if self.top.q == self.bottom.q:
             return
 
-        if self.left_p.x == self.right_p.x:
+        if self.is_zero_width:
             y_high = self.left_p.y
             y_low = self.right_p.y
         elif self.right_p == self.top.q:
@@ -122,7 +126,7 @@ class Trapezoid(GraphObject):
             if n in self.right_neighbors:
                 continue
             if self.right_p.x == n.left_p.x:
-                if n.left_p.x == n.right_p.x:
+                if n.is_zero_width:
                     """ zero-width trapezoid """
                     ny_high = n.left_p.y
                     ny_low = n.right_p.y
