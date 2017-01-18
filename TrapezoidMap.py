@@ -23,8 +23,71 @@ class TrapezoidMap:
         # self.trapezoids.extendright(trapezoids)
 
     def deleteTrapezoidFromMap(self, trapezoids):
+        assert isinstance(trapezoids, list) and all(isinstance(t, Trapezoid) for t in trapezoids)
         self.trapezoids = [t for t in self.trapezoids if t not in trapezoids]
+        for t in trapezoids:
+            try:
+                for n in t.left_neighbors:
+                    n.right_neighbors.discard(t)
+                for n in t.right_neighbors:
+                    n.left_neighbors.discard(t)
+            except ValueError:
+                pass
         # self.trapezoids.remove(trapezoid)
+
+    def visualize(self, P=None):
+        """
+        Visualize the given trapezoidal map with matplotlib
+        :return:
+        """
+        # Draw the trapezoidal map
+        for trapezoid in self.trapezoids:
+            y_s = []
+            # now we need to project a vertical line on the bottom edge
+            if trapezoid.left_p == trapezoid.top.p:
+                l = trapezoid.bottom
+                y = l.slope * trapezoid.left_p.x + l.intercept
+                y_s.extend([y, trapezoid.left_p.y])
+            elif trapezoid.left_p == trapezoid.bottom.p:
+                l = trapezoid.top
+                y = l.slope * trapezoid.left_p.x + l.intercept
+                y_s.extend([trapezoid.left_p.y, y])
+            else:
+                l = trapezoid.bottom
+                y = l.slope * trapezoid.left_p.x + l.intercept
+                y_s.append(y)
+                l = trapezoid.top
+                y = l.slope * trapezoid.left_p.x + l.intercept
+                y_s.append(y)
+
+            if trapezoid.right_p == trapezoid.top.p:
+                l = trapezoid.bottom
+                y = l.slope * trapezoid.right_p.x + l.intercept
+                y_s.extend([trapezoid.right_p.y, y])
+            elif trapezoid.right_p == trapezoid.bottom.p:
+                l = trapezoid.top
+                y = l.slope * trapezoid.right_p.x + l.intercept
+                y_s.extend([y, trapezoid.right_p.y])
+            else:
+                l = trapezoid.top
+                y = l.slope * trapezoid.right_p.x + l.intercept
+                y_s.append(y)
+                l = trapezoid.bottom
+                y = l.slope * trapezoid.right_p.x + l.intercept
+                y_s.append(y)
+
+            y_s.append(y_s[0])
+            x_s = [trapezoid.left_p.x, trapezoid.left_p.x, trapezoid.right_p.x, trapezoid.right_p.x, trapezoid.left_p.x]
+            plt.plot(x_s, y_s, 'k')
+
+        # Draw the polygon also if there
+        if P:
+            x_s = [p.x for p in P.V]
+            y_s = [p.y for p in P.V]
+            plt.fill(x_s, y_s, 'b')
+
+        # Display
+        plt.show()
 
     def visualize_graph(self):
         assert isinstance(self.G, DAG)

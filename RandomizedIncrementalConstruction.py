@@ -21,11 +21,13 @@ class RandomizedIncrementalConstruction:
         """
         self.computeBoundingBox()
         random.shuffle(self.polygon.E)
-        # self.polygon.E = [self.polygon.E[i] for i in [3, 0, 1, 4, 2]]
+        # self.polygon.E = [self.polygon.E[i] for i in [3, 1, 4]] \
+        #                  + [self.polygon.E[i] for i in range(len(self.polygon.E)) if i not in [3, 1, 4]]
         import pprint as pp
         for lineSegment in self.polygon.E:
             self.insertLinesegment(lineSegment)
             # pp.pprint(self.T.G)
+            self.T.visualize()
             # self.T.visualize_graph()
 
     def getIntersectingTrapezoids(self, lineSegment):
@@ -61,10 +63,10 @@ class RandomizedIncrementalConstruction:
                         l = LineSegment(Point(n.left_p.x, y), n.left_p)
                     else:
                         l = n.bottom
-                        by = l.slope * n.left_p.x + l.intercept
+                        bottom_y = l.slope * n.left_p.x + l.intercept
                         l = n.top
-                        ty = l.slope * n.left_p.x + l.intercept
-                        l = LineSegment(Point(n.left_p.x, by), Point(n.left_p.x, ty))
+                        top_y = l.slope * n.left_p.x + l.intercept
+                        l = LineSegment(Point(n.left_p.x, bottom_y), Point(n.left_p.x, top_y))
 
                 if l.intersects(lineSegment):
                     intersecting_trapezoids.append(n)
@@ -113,12 +115,13 @@ class RandomizedIncrementalConstruction:
                                                pTrapezoid.right_p,
                                                pTrapezoid.top,
                                                pTrapezoid.bottom)
-                rightTrapezoid.setLeftNeighbors([newBottomTrapezoid, newTopTrapezoid])
+                rightTrapezoid.setLeftNeighbors({newBottomTrapezoid, newTopTrapezoid})
                 rightTrapezoid.setRightNeighbors(pTrapezoid.right_neighbors)
 
-                # update right neighbors of containingTrapezoid
+                # update right neighbors of containing trapezoid
                 for neighbor in rightTrapezoid.right_neighbors:
-                    neighbor.left_neighbors.remove(pTrapezoid)
+                    if pTrapezoid in neighbor.left_neighbors:
+                        neighbor.left_neighbors.remove(pTrapezoid)
 
                 self.T.addTrapezoid([rightTrapezoid])
                 qXnode = DAGNode(lineSegment.q, yNode, rightTrapezoid.node)
@@ -129,11 +132,13 @@ class RandomizedIncrementalConstruction:
             else:
                 newBottomTrapezoid.setRightNeighbors(pTrapezoid.right_neighbors)
                 for neighbor in newBottomTrapezoid.right_neighbors:
-                    neighbor.left_neighbors.remove(pTrapezoid)
+                    if pTrapezoid in neighbor.left_neighbors:
+                        neighbor.left_neighbors.remove(pTrapezoid)
 
                 newTopTrapezoid.setRightNeighbors(pTrapezoid.right_neighbors)
                 for neighbor in newTopTrapezoid.right_neighbors:
-                    neighbor.left_neighbors.remove(pTrapezoid)
+                    if pTrapezoid in neighbor.left_neighbors:
+                        neighbor.left_neighbors.remove(pTrapezoid)
 
             # then we need to make a trapezoid left of p
             if not pExisted:
@@ -150,11 +155,12 @@ class RandomizedIncrementalConstruction:
                                               pTrapezoid.top,
                                               pTrapezoid.bottom)
                 leftTrapezoid.setLeftNeighbors(pTrapezoid.left_neighbors)
-                leftTrapezoid.setRightNeighbors([newBottomTrapezoid, newTopTrapezoid])
+                leftTrapezoid.setRightNeighbors({newBottomTrapezoid, newTopTrapezoid})
 
-                # update left neighbors of pTrapezoid
+                # update left neighbors of containing trapezoid
                 for neighbor in leftTrapezoid.left_neighbors:
-                    neighbor.right_neighbors.remove(pTrapezoid)
+                    if pTrapezoid in neighbor.right_neighbors:
+                        neighbor.right_neighbors.remove(pTrapezoid)
 
                 self.T.addTrapezoid([leftTrapezoid])
 
@@ -165,11 +171,13 @@ class RandomizedIncrementalConstruction:
             else:
                 newBottomTrapezoid.setLeftNeighbors(pTrapezoid.left_neighbors)
                 for neighbor in newBottomTrapezoid.left_neighbors:
-                    neighbor.right_neighbors.remove(pTrapezoid)
+                    if pTrapezoid in neighbor.right_neighbors:
+                        neighbor.right_neighbors.remove(pTrapezoid)
 
                 newTopTrapezoid.setLeftNeighbors(pTrapezoid.left_neighbors)
                 for neighbor in newTopTrapezoid.left_neighbors:
-                    neighbor.right_neighbors.remove(pTrapezoid)
+                    if pTrapezoid in neighbor.right_neighbors:
+                        neighbor.right_neighbors.remove(pTrapezoid)
 
             if qExisted and pExisted:
                 pNode.modify(yNode)
@@ -177,16 +185,20 @@ class RandomizedIncrementalConstruction:
         elif len(intersectingTrapezoids) > 1:
             """ https://isotropic.org/papers/point-location.pdf """
             # Handle the trapezoid containing lineSegment.p
-            # TODO: handle pexisted and qexisted case
             newLeftBottomTrapezoid = Trapezoid(lineSegment.p, lineSegment.get_Y(pTrapezoid.right_p.x),
                                                lineSegment, pTrapezoid.bottom)
+            newLeftBottomTrapezoid.setRightNeighbors(
+                {n for n in pTrapezoid.right_neighbors if not lineSegment.aboveLine(n.top.q)})
             newLeftTopTrapezoid = Trapezoid(lineSegment.p, lineSegment.get_Y(pTrapezoid.right_p.x),
                                             pTrapezoid.top, lineSegment)
+            newLeftTopTrapezoid.setRightNeighbors(
+                {n for n in pTrapezoid.right_neighbors if lineSegment.aboveLine(n.bottom.q)})
+
             if not pExisted:
                 newLeftTrapezoid = Trapezoid(pTrapezoid.left_p, lineSegment.p, pTrapezoid.top,
                                              pTrapezoid.bottom)
                 newLeftTrapezoid.setLeftNeighbors(pTrapezoid.left_neighbors)
-                newLeftTrapezoid.setRightNeighbors([newLeftTopTrapezoid, newLeftBottomTrapezoid])
+                newLeftTrapezoid.setRightNeighbors({newLeftTopTrapezoid, newLeftBottomTrapezoid})
             else:
                 newLeftTopTrapezoid.setLeftNeighbors(pTrapezoid.left_neighbors)
                 newLeftBottomTrapezoid.setLeftNeighbors(pTrapezoid.left_neighbors)
@@ -194,82 +206,108 @@ class RandomizedIncrementalConstruction:
             # Handle the trapezoid containing lineSegment.q
             newRightBottomTrapezoid = Trapezoid(lineSegment.get_Y(qTrapezoid.left_p.x), lineSegment.q,
                                                 lineSegment, qTrapezoid.bottom)
+            newRightBottomTrapezoid.setLeftNeighbors(
+                {n for n in qTrapezoid.left_neighbors if not lineSegment.aboveLine(n.top.q)})
             newRightTopTrapezoid = Trapezoid(lineSegment.get_Y(qTrapezoid.left_p.x), lineSegment.q,
                                              qTrapezoid.top, lineSegment)
+            newRightTopTrapezoid.setLeftNeighbors(
+                {n for n in qTrapezoid.left_neighbors if lineSegment.aboveLine(n.bottom.q)})
+
             if not qExisted:
                 newRightTrapezoid = Trapezoid(lineSegment.q, qTrapezoid.right_p, qTrapezoid.top,
                                               qTrapezoid.bottom)
-                newRightTrapezoid.setLeftNeighbors([newRightTopTrapezoid, newRightBottomTrapezoid])
+                newRightTrapezoid.setLeftNeighbors({newRightTopTrapezoid, newRightBottomTrapezoid})
                 newRightTrapezoid.setRightNeighbors(qTrapezoid.right_neighbors)
             else:
                 newRightTopTrapezoid.setRightNeighbors(qTrapezoid.right_neighbors)
                 newRightBottomTrapezoid.setRightNeighbors(qTrapezoid.right_neighbors)
 
-            # TODO: fix removal of old neighbors
             # Walk to the right along the new segment and split
             # each trapezoid into upper and lower ones
             newTopTrapezoids, newBottomTrapezoids = [newLeftTopTrapezoid], [newLeftBottomTrapezoid]
+            trap_dict = dict()
+            trap_dict[pTrapezoid] = (newLeftTopTrapezoid, newLeftBottomTrapezoid)
             for t in intersectingTrapezoids[1:-1]:
+                # create new top and bottom trapezoids
                 new_top = Trapezoid(lineSegment.get_Y(t.left_p.x), lineSegment.get_Y(t.right_p.x),
                                     t.top, lineSegment)
                 new_bottom = Trapezoid(lineSegment.get_Y(t.left_p.x), lineSegment.get_Y(t.right_p.x),
                                        lineSegment, t.bottom)
+
+                # Update neighbors of the new top and bottom
                 for n in t.left_neighbors:
                     if lineSegment.aboveLine(n.bottom.q):
-                        new_top.setLeftNeighbors([n])
+                        new_top.setLeftNeighbors({n})
                     if not lineSegment.aboveLine(n.top.q):
-                        new_bottom.setLeftNeighbors([n])
-                new_top.setLeftNeighbors([newTopTrapezoids[-1]])
-                new_bottom.setLeftNeighbors([newBottomTrapezoids[-1]])
+                        new_bottom.setLeftNeighbors({n})
+                new_top.setLeftNeighbors({newTopTrapezoids[-1]})
+                new_bottom.setLeftNeighbors({newBottomTrapezoids[-1]})
+
+                # Add it to the list and dict
                 newTopTrapezoids.append(new_top)
                 newBottomTrapezoids.append(new_bottom)
-            newRightTopTrapezoid.setLeftNeighbors([newTopTrapezoids[-1]])
-            newRightBottomTrapezoid.setLeftNeighbors([newBottomTrapezoids[-1]])
+                trap_dict[t] = (new_top, new_bottom)
+
+            newRightTopTrapezoid.setLeftNeighbors({newTopTrapezoids[-1]})
+            newRightBottomTrapezoid.setLeftNeighbors({newBottomTrapezoids[-1]})
             newTopTrapezoids.append(newRightTopTrapezoid)
             newBottomTrapezoids.append(newRightBottomTrapezoid)
+            trap_dict[qTrapezoid] = (newRightTopTrapezoid, newRightBottomTrapezoid)
 
             # Merge trapezoids with the same top and bottom line segments
-            newTopTrapezoidsTemp, newBottomTrapezoidsTemp = [], []
             for k, g in groupby(newTopTrapezoids, lambda x: x.top):
                 g = list(g)
                 if len(g) > 1:
+                    # create new merged trapezoid
                     t = Trapezoid(g[0].left_p, g[-1].right_p, k, g[0].bottom)
+                    for n in g[0].left_neighbors:
+                        n.right_neighbors.discard(g[0])
+                    for n in g[-1].right_neighbors:
+                        n.left_neighbors.discard(g[-1])
                     t.setLeftNeighbors(g[0].left_neighbors)
                     t.setRightNeighbors(g[-1].right_neighbors)
-                    newTopTrapezoidsTemp.append((k, t))
-                else:
-                    newTopTrapezoidsTemp.append((k, g[0]))
+
+                    # Update list and dictionary
+                    for k, v in trap_dict.items():
+                        if v[0] in g:
+                            trap_dict[k] = (t, v[1])
+
             for k, g in groupby(newBottomTrapezoids, lambda x: x.bottom):
                 g = list(g)
                 if len(g) > 1:
+                    # create new merged trapezoid
                     t = Trapezoid(g[0].left_p, g[-1].right_p, g[0].top, k)
+                    for n in g[0].left_neighbors:
+                        n.right_neighbors.discard(g[0])
+                    for n in g[-1].right_neighbors:
+                        n.left_neighbors.discard(g[-1])
                     t.setLeftNeighbors(g[0].left_neighbors)
                     t.setRightNeighbors(g[-1].right_neighbors)
-                    newBottomTrapezoidsTemp.append((k, t))
-                else:
-                    newBottomTrapezoidsTemp.append((k, g[0]))
-            newTopTrapezoids, newBottomTrapezoids = newTopTrapezoidsTemp, newBottomTrapezoidsTemp
+
+                    # Update list and dictionary
+                    for k, v in trap_dict.items():
+                        if v[1] in g:
+                            trap_dict[k] = (v[0], t)
 
             # Updating the DAG and the Trapezoidal map
-            newTopTrapezoids = dict(newTopTrapezoids)
-            newBottomTrapezoids = dict(newBottomTrapezoids)
             if not pExisted:
                 pTrapezoid.node = DAGNode(lineSegment.p,
                                           left_child=newLeftTrapezoid.node,
-                                          right_child=DAGNode(lineSegment, newBottomTrapezoids[pTrapezoid.bottom].node,
-                                                              newTopTrapezoids[pTrapezoid.top].node))
+                                          right_child=DAGNode(lineSegment, trap_dict[pTrapezoid][1].node,
+                                                              trap_dict[pTrapezoid][0].node))
                 self.T.deleteTrapezoidFromMap([pTrapezoid])
+                self.T.addTrapezoid([newLeftTrapezoid])
             if not qExisted:
                 qTrapezoid.node = DAGNode(lineSegment.q,
-                                          left_child=DAGNode(lineSegment, newBottomTrapezoids[qTrapezoid.bottom].node,
-                                                             newTopTrapezoids[qTrapezoid.top].node),
+                                          left_child=DAGNode(lineSegment, trap_dict[qTrapezoid][1].node,
+                                                             trap_dict[qTrapezoid][0].node),
                                           right_child=newRightTrapezoid.node)
                 self.T.deleteTrapezoidFromMap([qTrapezoid])
+                self.T.addTrapezoid([newRightTrapezoid])
             for t in intersectingTrapezoids[0 if pExisted else 1: len(intersectingTrapezoids) if qExisted else -1]:
-                t.node = DAGNode(lineSegment, left_child=newBottomTrapezoids[t.bottom].node,
-                                 right_child=newTopTrapezoids[t.top].node)
+                t.node = DAGNode(lineSegment, left_child=trap_dict[t][1].node, right_child=trap_dict[t][0].node)
             self.T.deleteTrapezoidFromMap(intersectingTrapezoids)
-            self.T.addTrapezoid([k[1] for k in newTopTrapezoidsTemp + newBottomTrapezoidsTemp])
+            self.T.addTrapezoid([v[0] for v in trap_dict.values()]+[v[1] for v in trap_dict.values()])
 
     def computeBoundingBox(self):
         # find  top right point to create a bounding box (bottom left is [0, 0])

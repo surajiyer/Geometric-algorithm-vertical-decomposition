@@ -22,8 +22,8 @@ class Trapezoid(GraphObject):
         self.right_p = right_p
         self.top = top
         self.bottom = bottom
-        self.left_neighbors = list()
-        self.right_neighbors = list()
+        self.left_neighbors = set()
+        self.right_neighbors = set()
         self._node = dag.DAGNode(self)
         self._dllistnode = dllistnode(self)
 
@@ -36,7 +36,7 @@ class Trapezoid(GraphObject):
         self._node.modify(node)
 
     def setLeftNeighbors(self, neighbors):
-        assert isinstance(neighbors, list) and all(isinstance(n, Trapezoid) for n in neighbors)
+        assert isinstance(neighbors, set) and all(isinstance(n, Trapezoid) for n in neighbors)
 
         if not neighbors:
             return
@@ -89,11 +89,11 @@ class Trapezoid(GraphObject):
                 if ny_low < y_high < ny_high or ny_low < y_low < ny_high \
                         or y_low < ny_low < y_high or y_low < ny_high < y_high \
                         or (y_low == ny_low and y_high == ny_high):
-                    self.left_neighbors.append(n)
-                    n.setRightNeighbors([self])
+                    self.left_neighbors.add(n)
+                    n.setRightNeighbors({self})
 
     def setRightNeighbors(self, neighbors):
-        assert isinstance(neighbors, list) and all(isinstance(n, Trapezoid) for n in neighbors)
+        assert isinstance(neighbors, set) and all(isinstance(n, Trapezoid) for n in neighbors)
 
         if not neighbors:
             return
@@ -145,8 +145,8 @@ class Trapezoid(GraphObject):
                 if ny_low < y_high < ny_high or ny_low < y_low < ny_high \
                         or y_low < ny_low < y_high or y_low < ny_high < y_high \
                         or (y_low == ny_low and y_high == ny_high):
-                    self.right_neighbors.append(n)
-                    n.setLeftNeighbors([self])
+                    self.right_neighbors.add(n)
+                    n.setLeftNeighbors({self})
 
     def __hash__(self):
         return super().__hash__()

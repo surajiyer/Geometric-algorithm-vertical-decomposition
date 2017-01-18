@@ -29,76 +29,26 @@ def load_input(file_name):
         return P
 
 
-def visualize(P, MAP):
-    """
-    Visualize the given trapezoidal map with matplotlib
-    :param MAP:
-    :return:
-    """
-    for trapezoid in MAP.trapezoids:
-        y_s = []
-        # now we need to project a vertical line on the bottom edge
-        if trapezoid.left_p == trapezoid.top.p:
-            l = trapezoid.bottom
-            y = l.slope * trapezoid.left_p.x + l.intercept
-            y_s.extend([y, trapezoid.left_p.y])
-        elif trapezoid.left_p == trapezoid.bottom.p:
-            l = trapezoid.top
-            y = l.slope * trapezoid.left_p.x + l.intercept
-            y_s.extend([trapezoid.left_p.y, y])
-        else:
-            l = trapezoid.bottom
-            y = l.slope * trapezoid.left_p.x + l.intercept
-            y_s.append(y)
-            l = trapezoid.top
-            y = l.slope * trapezoid.left_p.x + l.intercept
-            y_s.append(y)
-
-        if trapezoid.right_p == trapezoid.top.p:
-            l = trapezoid.bottom
-            y = l.slope * trapezoid.right_p.x + l.intercept
-            y_s.extend([trapezoid.right_p.y, y])
-        elif trapezoid.right_p == trapezoid.bottom.p:
-            l = trapezoid.top
-            y = l.slope * trapezoid.right_p.x + l.intercept
-            y_s.extend([y, trapezoid.right_p.y])
-        else:
-            l = trapezoid.top
-            y = l.slope * trapezoid.right_p.x + l.intercept
-            y_s.append(y)
-            l = trapezoid.bottom
-            y = l.slope * trapezoid.right_p.x + l.intercept
-            y_s.append(y)
-
-        y_s.append(y_s[0])
-        x_s = [trapezoid.left_p.x, trapezoid.left_p.x, trapezoid.right_p.x, trapezoid.right_p.x, trapezoid.left_p.x]
-        plt.plot(x_s, y_s, 'k')
-
-    x_s = [p.x for p in P.V]
-    y_s = [p.y for p in P.V]
-    plt.fill(x_s, y_s, 'b')
-    plt.show()
-
-
 if __name__ == '__main__':
     # make polygon based on input
-    P = load_input('Data/gen_10000.txt')
+    P = load_input('Data/test_2.txt')
 
     # Initialize algorithm (also computes the map already)
     times = []
-    for i in range(0, 10):
-        start = time.time()
-        R = RandomizedIncrementalConstruction(P)
-        end = time.time()
-        print("Execution time:", (end-start)*1000)
-        times.append((end-start)*1000)
+    # for i in range(0, 10):
+    #     start = time.time()
+    #     print('---------------- TEST %d ----------------' % i)
+    R = RandomizedIncrementalConstruction(P)
+        # end = time.time()
+        # print("Execution time:", (end-start)*1000)
+        # times.append((end-start)*1000)
+        #
+        # # Garbage collection
+        # if i != 9:
+        #     R = None
+        #     gc.collect()
 
-        # Visualize the map
-        T = R.getTrapezoidalMap()
-        visualize(P, T)
-        T.visualize_graph()
-
-        # Garbage collection
-        if (i != 9):
-            R = None
-            gc.collect()
+    # Visualize the map
+    T = R.getTrapezoidalMap()
+    T.visualize(P)
+    T.visualize_graph()
