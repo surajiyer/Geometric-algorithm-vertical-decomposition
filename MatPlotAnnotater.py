@@ -22,7 +22,6 @@ class MatPlotAnnotater(object):
             xtol = ((max(xdata) - min(xdata)) / float(len(xdata))) / 2
         if ytol is None:
             ytol = ((max(ydata) - min(ydata)) / float(len(ydata))) / 2
-        print(xtol, ytol)
         self.xtol = xtol
         self.ytol = ytol
         if ax is None:

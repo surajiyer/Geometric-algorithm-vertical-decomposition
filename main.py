@@ -1,4 +1,4 @@
-from Polygon import Polygon, Point, LineSegment
+from Polygon import Polygon, Point
 from RandomizedIncrementalConstruction import RandomizedIncrementalConstruction
 import time
 from LineSweep import LineSweep
@@ -81,7 +81,7 @@ def visualize(P, MAP):
 
 if __name__ == '__main__':
     # make polygon based on input
-    file_name = 'Data/test_3.txt'
+    file_name = 'Data/test_2.txt'
     P = load_input(file_name=file_name)
 
     # Initialize algorithm (also computes the map already)
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     # R = LineSweep(P)
     R = RandomizedIncrementalConstruction(P)
     end = time.time()
-    print((end-start)*1000)
+    print("Execution time:", (end-start)*1000)
 
     # Visualize the map
     T = R.getTrapezoidalMap()

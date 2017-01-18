@@ -1,5 +1,6 @@
 from Trapezoid import Trapezoid
 from DAG import DAG
+from llist import dllist
 import networkx as nx
 import matplotlib.pyplot as plt
 from MatPlotAnnotater import MatPlotAnnotater
@@ -13,11 +14,13 @@ class TrapezoidMap:
     def __init__(self, trapezoids):
         assert isinstance(trapezoids, list) and all(isinstance(n, Trapezoid) for n in trapezoids)
         self.trapezoids = trapezoids
+        # self.trapezoids = dllist(trapezoids)
         self.G = None
 
     def addTrapezoid(self, trapezoids):
         assert isinstance(trapezoids, list) and all(isinstance(t, Trapezoid) for t in trapezoids)
         self.trapezoids.extend(trapezoids)
+        # self.trapezoids.extendright(trapezoids)
 
     def deleteTrapezoidFromMap(self, trapezoids):
         self.trapezoids = [t for t in self.trapezoids if t not in trapezoids]
@@ -27,8 +30,10 @@ class TrapezoidMap:
         assert isinstance(self.G, DAG)
         G = nx.DiGraph()
         for n in self.G.in_order(self.G.root):
-            if n.parent:
-                G.add_edge(n.parent, n)
+            if n.left_child:
+                G.add_edge(n, n.left_child)
+            if n.right_child:
+                G.add_edge(n, n.right_child)
         pos = self.hierarchy_pos(G, root=self.G.root, is_dag=nx.is_directed_acyclic_graph(G))
         nx.draw(G, pos=pos)
         fig = plt.gcf()

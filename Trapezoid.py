@@ -2,6 +2,8 @@ from Point import Point
 from LineSegment import LineSegment
 from GraphObject import GraphObject
 import DAGNode as dag
+from llist import dllistnode
+
 import copy
 
 
@@ -23,17 +25,21 @@ class Trapezoid(GraphObject):
         self.left_neighbors = list()
         self.right_neighbors = list()
         self._node = dag.DAGNode(self)
+        self._dllistnode = dllistnode(self)
 
-    def set_node(self, node):
-        self._node.modify(node)
-
-    def get_node(self):
+    @property
+    def node(self):
         return self._node
 
-    node = property(get_node, set_node)
+    @node.setter
+    def node(self, node):
+        self._node.modify(node)
 
     def setLeftNeighbors(self, neighbors):
         assert isinstance(neighbors, list) and all(isinstance(n, Trapezoid) for n in neighbors)
+
+        if not neighbors:
+            return
 
         # there are no left neighbors
         if self.top.p == self.bottom.p:
@@ -88,6 +94,9 @@ class Trapezoid(GraphObject):
 
     def setRightNeighbors(self, neighbors):
         assert isinstance(neighbors, list) and all(isinstance(n, Trapezoid) for n in neighbors)
+
+        if not neighbors:
+            return
 
         # there are no right neighbors
         if self.top.q == self.bottom.q:

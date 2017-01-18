@@ -20,9 +20,13 @@ class RandomizedIncrementalConstruction:
         Create a vertical decomposition of a simple polygon
         """
         self.computeBoundingBox()
-        # random.shuffle(self.polygon.E)
+        random.shuffle(self.polygon.E)
+        # self.polygon.E = [self.polygon.E[i] for i in [3, 0, 1, 4, 2]]
+        import pprint as pp
         for lineSegment in self.polygon.E:
             self.insertLinesegment(lineSegment)
+            # pp.pprint(self.T.G)
+            # self.T.visualize_graph()
 
     def getIntersectingTrapezoids(self, lineSegment):
         """
@@ -92,10 +96,8 @@ class RandomizedIncrementalConstruction:
             yNode.left_child = newBottomTrapezoid.node
             yNode.right_child = newTopTrapezoid.node
 
-            # the trapezoid will be removed from the trapezoidal map
+            # Update the trapezoidal map
             self.T.deleteTrapezoidFromMap([pTrapezoid])
-
-            # and add the new ones
             self.T.addTrapezoid([newTopTrapezoid, newBottomTrapezoid])
 
             if not qExisted:
@@ -122,7 +124,8 @@ class RandomizedIncrementalConstruction:
                 qXnode = DAGNode(lineSegment.q, yNode, rightTrapezoid.node)
 
                 # change the pNode to the new qXnode
-                pNode.modify(qXnode)
+                if pExisted:
+                    pNode.modify(qXnode)
             else:
                 newBottomTrapezoid.setRightNeighbors(pTrapezoid.right_neighbors)
                 for neighbor in newBottomTrapezoid.right_neighbors:
@@ -202,7 +205,7 @@ class RandomizedIncrementalConstruction:
                 newRightTopTrapezoid.setRightNeighbors(qTrapezoid.right_neighbors)
                 newRightBottomTrapezoid.setRightNeighbors(qTrapezoid.right_neighbors)
 
-            # TODO: fix removal of old neighbors from map
+            # TODO: fix removal of old neighbors
             # Walk to the right along the new segment and split
             # each trapezoid into upper and lower ones
             newTopTrapezoids, newBottomTrapezoids = [newLeftTopTrapezoid], [newLeftBottomTrapezoid]
@@ -220,6 +223,8 @@ class RandomizedIncrementalConstruction:
                 new_bottom.setLeftNeighbors([newBottomTrapezoids[-1]])
                 newTopTrapezoids.append(new_top)
                 newBottomTrapezoids.append(new_bottom)
+            newRightTopTrapezoid.setLeftNeighbors([newTopTrapezoids[-1]])
+            newRightBottomTrapezoid.setLeftNeighbors([newBottomTrapezoids[-1]])
             newTopTrapezoids.append(newRightTopTrapezoid)
             newBottomTrapezoids.append(newRightBottomTrapezoid)
 
@@ -227,42 +232,42 @@ class RandomizedIncrementalConstruction:
             newTopTrapezoidsTemp, newBottomTrapezoidsTemp = [], []
             for k, g in groupby(newTopTrapezoids, lambda x: x.top):
                 g = list(g)
-                t = Trapezoid(g[0].left_p, g[-1].right_p, k, g[0].bottom)
-                t.setLeftNeighbors(g[0].left_neighbors)
-                t.setRightNeighbors(g[-1].right_neighbors)
-                newTopTrapezoidsTemp.append((k, t))
+                if len(g) > 1:
+                    t = Trapezoid(g[0].left_p, g[-1].right_p, k, g[0].bottom)
+                    t.setLeftNeighbors(g[0].left_neighbors)
+                    t.setRightNeighbors(g[-1].right_neighbors)
+                    newTopTrapezoidsTemp.append((k, t))
+                else:
+                    newTopTrapezoidsTemp.append((k, g[0]))
             for k, g in groupby(newBottomTrapezoids, lambda x: x.bottom):
                 g = list(g)
-                t = Trapezoid(g[0].left_p, g[-1].right_p, g[0].top, k)
-                t.setLeftNeighbors(g[0].left_neighbors)
-                t.setRightNeighbors(g[-1].right_neighbors)
-                newBottomTrapezoidsTemp.append((k, t))
+                if len(g) > 1:
+                    t = Trapezoid(g[0].left_p, g[-1].right_p, g[0].top, k)
+                    t.setLeftNeighbors(g[0].left_neighbors)
+                    t.setRightNeighbors(g[-1].right_neighbors)
+                    newBottomTrapezoidsTemp.append((k, t))
+                else:
+                    newBottomTrapezoidsTemp.append((k, g[0]))
             newTopTrapezoids, newBottomTrapezoids = newTopTrapezoidsTemp, newBottomTrapezoidsTemp
 
-            # newTopTrapezoids = [(k, Trapezoid(g[0].left_p, g[-1].right_p, k, g[0].bottom))
-            #                     for k, g in groupby(newTopTrapezoids, lambda x: x.top)]
-            # newBottomTrapezoids = [(k, Trapezoid(g[0].left_p, g[-1].right_p, g[0].top, k))
-            #                        for k, g in groupby(newBottomTrapezoids, lambda x: x.bottom)]
-
-            # Updating the DAG
+            # Updating the DAG and the Trapezoidal map
             newTopTrapezoids = dict(newTopTrapezoids)
             newBottomTrapezoids = dict(newBottomTrapezoids)
-
             if not pExisted:
                 pTrapezoid.node = DAGNode(lineSegment.p,
                                           left_child=newLeftTrapezoid.node,
                                           right_child=DAGNode(lineSegment, newBottomTrapezoids[pTrapezoid.bottom].node,
                                                               newTopTrapezoids[pTrapezoid.top].node))
+                self.T.deleteTrapezoidFromMap([pTrapezoid])
             if not qExisted:
                 qTrapezoid.node = DAGNode(lineSegment.q,
                                           left_child=DAGNode(lineSegment, newBottomTrapezoids[qTrapezoid.bottom].node,
                                                              newTopTrapezoids[qTrapezoid.top].node),
                                           right_child=newRightTrapezoid.node)
-            for t in intersectingTrapezoids[0 if pExisted else 1: -1 if qExisted else -2]:
+                self.T.deleteTrapezoidFromMap([qTrapezoid])
+            for t in intersectingTrapezoids[0 if pExisted else 1: len(intersectingTrapezoids) if qExisted else -1]:
                 t.node = DAGNode(lineSegment, left_child=newBottomTrapezoids[t.bottom].node,
                                  right_child=newTopTrapezoids[t.top].node)
-
-            # the trapezoids will be removed from the trapezoidal map
             self.T.deleteTrapezoidFromMap(intersectingTrapezoids)
             self.T.addTrapezoid([k[1] for k in newTopTrapezoidsTemp + newBottomTrapezoidsTemp])
 

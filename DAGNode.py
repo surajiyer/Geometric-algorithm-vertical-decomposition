@@ -1,8 +1,10 @@
 import copy
+import Text
+
+from GraphObject import GraphObject
 from Point import Point
 from LineSegment import LineSegment
 import Trapezoid
-from GraphObject import GraphObject
 
 
 class DAGNode:
@@ -15,31 +17,26 @@ class DAGNode:
         self.graph_object = graph_object
         self.left_child = left_child
         self.right_child = right_child
-        self.parent = None
 
-    def get_left_child(self):
+    @property
+    def left_child(self):
         return self._left_child
 
-    def set_left_child(self, left_child):
+    @left_child.setter
+    def left_child(self, left_child):
         assert isinstance(left_child, DAGNode) or left_child is None, 'left_child should be a DAGNode!'
         self._left_child = left_child
-        if self._left_child:
-            self._left_child.parent = self
 
-    left_child = property(get_left_child, set_left_child)
-
-    def get_right_child(self):
+    @property
+    def right_child(self):
         return self._right_child
 
-    def set_right_child(self, right_child):
+    @right_child.setter
+    def right_child(self, right_child):
         assert isinstance(right_child, DAGNode) or right_child is None, 'right_child should be a DAGNode!'
         self._right_child = right_child
-        if self._right_child:
-            self._right_child.parent = self
 
-    right_child = property(get_right_child, set_right_child)
-
-    def getOffsetPoint(self, query_point, line_seg) -> Point:
+    def get_offset_point(self, query_point, line_seg) -> Point:
         assert isinstance(query_point, Point)
         assert isinstance(line_seg, LineSegment)
 
@@ -80,7 +77,7 @@ class DAGNode:
             elif query_point.x > self.graph_object.x:
                 return self.right_child.getQueryResult(query_point, line_seg, query_point_existed)
             else:
-                new_query_point = self.getOffsetPoint(query_point, line_seg)
+                new_query_point = self.get_offset_point(query_point, line_seg)
                 return self.getQueryResult(new_query_point, line_seg, query_point == self.graph_object)
 
         # we are a Y-Node
@@ -125,7 +122,6 @@ class DAGNode:
         return NotImplemented
 
     def __repr__(self):
-        return '<left_child: %s, \nright_child: %s, \ngraph_object: %s, \nparent: %s>' % (
+        return '<Node left_child: %s, right_child: %s, graph_object: %s>' % (
             self.left_child.graph_object if self.left_child else 'NO',
-            self.right_child.graph_object if self.right_child else 'NO', self.graph_object,
-            self.parent.graph_object if self.parent else 'NO')
+            self.right_child.graph_object if self.right_child else 'NO', self.graph_object)
