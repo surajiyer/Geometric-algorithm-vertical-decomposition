@@ -1,6 +1,5 @@
 from Point import Point
 from LineSegment import LineSegment
-import random
 
 
 class Polygon:
@@ -18,8 +17,6 @@ class Polygon:
         self.E = []
         for i, p in enumerate(points):
             self.E.append(LineSegment(p, points[(i + 1) % len(points)]))
-        # TODO: randomize
-        # random.shuffle(self.E)
 
         # check if points represent a simple polygon
         assert self.is_simple_polygon, 'Input polygon must be simple'
@@ -47,3 +44,18 @@ class Polygon:
                     print('Segments %s and %s intersect' % (str(s1), str(s2)))
                     return False
         return True
+
+    def __hash__(self):
+        return super().__hash__()
+
+    def __eq__(self, other):
+        """Override the default Equals behavior"""
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        return NotImplemented
+
+    def __ne__(self, other):
+        """Define a non-equality test"""
+        if isinstance(other, self.__class__):
+            return not self == other
+        return NotImplemented

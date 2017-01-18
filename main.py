@@ -40,34 +40,34 @@ def visualize(P, MAP):
         # now we need to project a vertical line on the bottom edge
         if trapezoid.left_p == trapezoid.top.p:
             l = trapezoid.bottom
-            y = l.getSlope() * trapezoid.left_p.x + l.getIntercept()
+            y = l.slope * trapezoid.left_p.x + l.intercept
             y_s.extend([y, trapezoid.left_p.y])
         elif trapezoid.left_p == trapezoid.bottom.p:
             l = trapezoid.top
-            y = l.getSlope() * trapezoid.left_p.x + l.getIntercept()
+            y = l.slope * trapezoid.left_p.x + l.intercept
             y_s.extend([trapezoid.left_p.y, y])
         else:
             l = trapezoid.bottom
-            y = l.getSlope() * trapezoid.left_p.x + l.getIntercept()
+            y = l.slope * trapezoid.left_p.x + l.intercept
             y_s.append(y)
             l = trapezoid.top
-            y = l.getSlope() * trapezoid.left_p.x + l.getIntercept()
+            y = l.slope * trapezoid.left_p.x + l.intercept
             y_s.append(y)
 
         if trapezoid.right_p == trapezoid.top.p:
             l = trapezoid.bottom
-            y = l.getSlope() * trapezoid.right_p.x + l.getIntercept()
+            y = l.slope * trapezoid.right_p.x + l.intercept
             y_s.extend([trapezoid.right_p.y, y])
         elif trapezoid.right_p == trapezoid.bottom.p:
             l = trapezoid.top
-            y = l.getSlope() * trapezoid.right_p.x + l.getIntercept()
+            y = l.slope * trapezoid.right_p.x + l.intercept
             y_s.extend([y, trapezoid.right_p.y])
         else:
             l = trapezoid.top
-            y = l.getSlope() * trapezoid.right_p.x + l.getIntercept()
+            y = l.slope * trapezoid.right_p.x + l.intercept
             y_s.append(y)
             l = trapezoid.bottom
-            y = l.getSlope() * trapezoid.right_p.x + l.getIntercept()
+            y = l.slope * trapezoid.right_p.x + l.intercept
             y_s.append(y)
 
         y_s.append(y_s[0])
@@ -101,3 +101,4 @@ if __name__ == '__main__':
     R = LineSweep(P)
     T = R.getTrapezoidalMap()
     visualize(P, T)
+    T.visualize_graph()
