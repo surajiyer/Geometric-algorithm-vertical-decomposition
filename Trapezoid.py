@@ -2,7 +2,7 @@ from Point import Point
 from LineSegment import LineSegment
 from GraphObject import GraphObject
 import DAGNode as dag
-from llist import dllistnode
+# from llist import dllistnode
 
 import copy
 
@@ -25,7 +25,7 @@ class Trapezoid(GraphObject):
         self.left_neighbors = set()
         self.right_neighbors = set()
         self._node = dag.DAGNode(self)
-        self._dllistnode = dllistnode(self)
+        # self._dllistnode = dllistnode(self)
 
     @property
     def node(self):
