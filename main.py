@@ -3,7 +3,6 @@ from RandomizedIncrementalConstruction import RandomizedIncrementalConstruction
 import time
 import gc
 from LineSweep import LineSweep
-import matplotlib.pyplot as plt
 
 
 def load_input(file_name):

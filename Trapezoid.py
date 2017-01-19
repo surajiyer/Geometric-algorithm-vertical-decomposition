@@ -64,7 +64,7 @@ class Trapezoid(GraphObject):
 
         for n in neighbors:
             # if the neighbor already exists or its not directly adjacent to self, then skip
-            if n in self.left_neighbors or self.left_p.x == n.right_p.x:
+            if n in self.left_neighbors or self.left_p.x != n.right_p.x:
                 continue
             if n.is_zero_width:
                 """ zero-width trapezoid """
