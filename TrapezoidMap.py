@@ -13,14 +13,14 @@ class TrapezoidMap:
     """
 
     def __init__(self, trapezoids):
-        assert isinstance(trapezoids, list) and all(isinstance(n, Trapezoid) for n in trapezoids)
-        self.trapezoids = set(trapezoids)
+        assert isinstance(trapezoids, set) and all(isinstance(n, Trapezoid) for n in trapezoids)
+        self.trapezoids = trapezoids
         # self.trapezoids = dllist(trapezoids)
         self.G = None
 
     def addTrapezoid(self, trapezoids: set):
         assert isinstance(trapezoids, set) and all(isinstance(t, Trapezoid) for t in trapezoids)
-        self.trapezoids.union(trapezoids)
+        self.trapezoids |= trapezoids
         # self.trapezoids.extendright(trapezoids)
 
     def deleteTrapezoidFromMap(self, trapezoids: set):
@@ -40,6 +40,7 @@ class TrapezoidMap:
         :return:
         """
         assert P is None or isinstance(P, Polygon)
+        print(len(self.trapezoids))
 
         # Draw the trapezoidal map
         for trapezoid in self.trapezoids:
