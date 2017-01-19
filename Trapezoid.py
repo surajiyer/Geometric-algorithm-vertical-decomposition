@@ -40,11 +40,8 @@ class Trapezoid(GraphObject):
     def setLeftNeighbors(self, neighbors, auto=False):
         assert isinstance(neighbors, set) and all(isinstance(n, Trapezoid) for n in neighbors)
 
-        if not neighbors:
-            return
-
         # there are no left neighbors
-        if self.top.p == self.bottom.p:
+        if not neighbors or self.top.p == self.bottom.p:
             return
 
         if self.is_zero_width:
@@ -66,43 +63,40 @@ class Trapezoid(GraphObject):
             y_high = l.slope * self.left_p.x + l.intercept
 
         for n in neighbors:
-            if n in self.left_neighbors:
+            # if the neighbor already exists or its not directly adjacent to self, then skip
+            if n in self.left_neighbors or self.left_p.x == n.right_p.x:
                 continue
-            if self.left_p.x == n.right_p.x:
-                if n.is_zero_width:
-                    """ zero-width trapezoid """
-                    ny_high = n.left_p.y
-                    ny_low = n.right_p.y
-                elif n.right_p == n.top.q:
-                    l = n.bottom
-                    ny_high = n.right_p.y
-                    ny_low = l.slope * n.right_p.x + l.intercept
-                elif n.right_p == n.bottom.q:
-                    l = n.top
-                    ny_high = l.slope * n.right_p.x + l.intercept
-                    ny_low = n.right_p.y
-                else:
-                    l = n.bottom
-                    ny_low = l.slope * n.right_p.x + l.intercept
-                    l = n.top
-                    ny_high = l.slope * n.right_p.x + l.intercept
+            if n.is_zero_width:
+                """ zero-width trapezoid """
+                ny_high = n.left_p.y
+                ny_low = n.right_p.y
+            elif n.right_p == n.top.q:
+                l = n.bottom
+                ny_high = n.right_p.y
+                ny_low = l.slope * n.right_p.x + l.intercept
+            elif n.right_p == n.bottom.q:
+                l = n.top
+                ny_high = l.slope * n.right_p.x + l.intercept
+                ny_low = n.right_p.y
+            else:
+                l = n.bottom
+                ny_low = l.slope * n.right_p.x + l.intercept
+                l = n.top
+                ny_high = l.slope * n.right_p.x + l.intercept
 
-                # sides overlap
-                if ny_low < y_high < ny_high or ny_low < y_low < ny_high \
-                        or y_low < ny_low < y_high or y_low < ny_high < y_high \
-                        or (y_low == ny_low and y_high == ny_high):
-                    self.left_neighbors.add(n)
-                    if not auto:
-                        n.setRightNeighbors({self}, auto=True)
+            # sides overlap
+            if ny_low < y_high < ny_high or ny_low < y_low < ny_high \
+                    or y_low < ny_low < y_high or y_low < ny_high < y_high \
+                    or (y_low == ny_low and y_high == ny_high):
+                self.left_neighbors.add(n)
+                if not auto:
+                    n.setRightNeighbors({self}, auto=True)
 
     def setRightNeighbors(self, neighbors, auto=False):
         assert isinstance(neighbors, set) and all(isinstance(n, Trapezoid) for n in neighbors)
 
-        if not neighbors:
-            return
-
         # there are no right neighbors
-        if self.top.q == self.bottom.q:
+        if not neighbors or self.top.q == self.bottom.q:
             return
 
         if self.is_zero_width:
@@ -123,34 +117,34 @@ class Trapezoid(GraphObject):
             y_high = l.slope * self.right_p.x + l.intercept
 
         for n in neighbors:
-            if n in self.right_neighbors:
+            # if the neighbor already exists or its not directly adjacent to self, then skip
+            if n in self.right_neighbors or self.right_p.x != n.left_p.x:
                 continue
-            if self.right_p.x == n.left_p.x:
-                if n.is_zero_width:
-                    """ zero-width trapezoid """
-                    ny_high = n.left_p.y
-                    ny_low = n.right_p.y
-                elif n.left_p == n.top.p:
-                    l = n.bottom
-                    ny_high = n.left_p.y
-                    ny_low = l.slope * n.left_p.x + l.intercept
-                elif n.left_p == n.bottom.p:
-                    l = n.top
-                    ny_high = l.slope * n.left_p.x + l.intercept
-                    ny_low = n.left_p.y
-                else:
-                    l = n.bottom
-                    ny_low = l.slope * n.left_p.x + l.intercept
-                    l = n.top
-                    ny_high = l.slope * n.left_p.x + l.intercept
+            if n.is_zero_width:
+                """ zero-width trapezoid """
+                ny_high = n.left_p.y
+                ny_low = n.right_p.y
+            elif n.left_p == n.top.p:
+                l = n.bottom
+                ny_high = n.left_p.y
+                ny_low = l.slope * n.left_p.x + l.intercept
+            elif n.left_p == n.bottom.p:
+                l = n.top
+                ny_high = l.slope * n.left_p.x + l.intercept
+                ny_low = n.left_p.y
+            else:
+                l = n.bottom
+                ny_low = l.slope * n.left_p.x + l.intercept
+                l = n.top
+                ny_high = l.slope * n.left_p.x + l.intercept
 
-                # sides overlap
-                if ny_low < y_high < ny_high or ny_low < y_low < ny_high \
-                        or y_low < ny_low < y_high or y_low < ny_high < y_high \
-                        or (y_low == ny_low and y_high == ny_high):
-                    self.right_neighbors.add(n)
-                    if not auto:
-                        n.setLeftNeighbors({self})
+            # sides overlap
+            if ny_low < y_high < ny_high or ny_low < y_low < ny_high \
+                    or y_low < ny_low < y_high or y_low < ny_high < y_high \
+                    or (y_low == ny_low and y_high == ny_high):
+                self.right_neighbors.add(n)
+                if not auto:
+                    n.setLeftNeighbors({self})
 
     def __hash__(self):
         return super().__hash__()
@@ -158,11 +152,6 @@ class Trapezoid(GraphObject):
     def __eq__(self, other):
         """Override the default Equals behavior"""
         if isinstance(other, self.__class__):
-            # x, y = copy.copy(self.__dict__), copy.copy(other.__dict__)
-            # x.pop("_node", None)
-            # y.pop("_node", None)
-            # return x == y
-            # return self.__dict__ == other.__dict__
             return self.left_p == other.left_p and self.right_p == other.right_p \
                    and self.top == other.top and self.bottom == other.bottom
         return super().__eq__(other)
