@@ -2,6 +2,8 @@ from Point import Point
 from LineSegment import LineSegment
 from GraphObject import GraphObject
 import DAGNode as dag
+
+
 # from llist import dllistnode
 
 

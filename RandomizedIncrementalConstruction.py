@@ -39,10 +39,10 @@ class RandomizedIncrementalConstruction:
         q = self.T.G.root.getQueryResult(line_seg.q, line_seg)
         current_trapezoid = p[0].graph_object
         intersecting_trapezoids = [current_trapezoid]
+        print('Line Segment |', line_seg)
 
-        print('Before Loop')
         while current_trapezoid != q[0].graph_object:
-            print('Inside loop')
+            # print('Inside loop')
             for n in current_trapezoid.right_neighbors:
                 if current_trapezoid.right_p != n.left_p:
                     l = LineSegment(current_trapezoid.right_p, n.left_p)
@@ -91,14 +91,12 @@ class RandomizedIncrementalConstruction:
 
             if q_exists:
                 newBottomTrapezoid.setRightNeighbors(pTrapezoid.right_neighbors)
-                for neighbor in newBottomTrapezoid.right_neighbors:
-                    # if pTrapezoid in neighbor.left_neighbors:
-                    neighbor.left_neighbors.remove(pTrapezoid)
+                # for neighbor in newBottomTrapezoid.right_neighbors:
+                #     neighbor.left_neighbors.discard(pTrapezoid)
 
                 newTopTrapezoid.setRightNeighbors(pTrapezoid.right_neighbors)
-                for neighbor in newTopTrapezoid.right_neighbors:
-                    # if pTrapezoid in neighbor.left_neighbors:
-                    neighbor.left_neighbors.remove(pTrapezoid)
+                # for neighbor in newTopTrapezoid.right_neighbors:
+                #     neighbor.left_neighbors.discard(pTrapezoid)
             else:
                 # make a trapezoid right of q
                 if line_seg.q.x == pTrapezoid.right_p.x \
@@ -112,9 +110,8 @@ class RandomizedIncrementalConstruction:
                 rightTrapezoid.setRightNeighbors(pTrapezoid.right_neighbors)
 
                 # update right neighbors of containing trapezoid
-                for neighbor in rightTrapezoid.right_neighbors:
-                    # if pTrapezoid in neighbor.left_neighbors:
-                    neighbor.left_neighbors.remove(pTrapezoid)
+                # for neighbor in rightTrapezoid.right_neighbors:
+                #     neighbor.left_neighbors.discard(pTrapezoid)
 
                 self.T.addTrapezoid({rightTrapezoid})
                 qXnode = DAGNode(line_seg.q, yNode, rightTrapezoid.node)
@@ -124,14 +121,12 @@ class RandomizedIncrementalConstruction:
 
             if p_exists:
                 newBottomTrapezoid.setLeftNeighbors(pTrapezoid.left_neighbors)
-                for neighbor in newBottomTrapezoid.left_neighbors:
-                    # if pTrapezoid in neighbor.right_neighbors:
-                    neighbor.right_neighbors.remove(pTrapezoid)
+                # for neighbor in newBottomTrapezoid.left_neighbors:
+                #     neighbor.right_neighbors.discard(pTrapezoid)
 
                 newTopTrapezoid.setLeftNeighbors(pTrapezoid.left_neighbors)
-                for neighbor in newTopTrapezoid.left_neighbors:
-                    # if pTrapezoid in neighbor.right_neighbors:
-                    neighbor.right_neighbors.remove(pTrapezoid)
+                # for neighbor in newTopTrapezoid.left_neighbors:
+                #     neighbor.right_neighbors.discard(pTrapezoid)
             else:
                 # make a trapezoid left of p
                 if line_seg.p.x == pTrapezoid.left_p.x \
@@ -145,9 +140,8 @@ class RandomizedIncrementalConstruction:
                 leftTrapezoid.setRightNeighbors({newBottomTrapezoid, newTopTrapezoid})
 
                 # update left neighbors of containing trapezoid
-                for neighbor in leftTrapezoid.left_neighbors:
-                    # if pTrapezoid in neighbor.right_neighbors:
-                    neighbor.right_neighbors.remove(pTrapezoid)
+                # for neighbor in leftTrapezoid.left_neighbors:
+                #     neighbor.right_neighbors.discard(pTrapezoid)
 
                 self.T.addTrapezoid({leftTrapezoid})
                 pXnode = DAGNode(line_seg.p,

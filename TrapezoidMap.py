@@ -40,7 +40,6 @@ class TrapezoidMap:
         :return:
         """
         assert P is None or isinstance(P, Polygon)
-        print(len(self.trapezoids))
 
         # Draw the trapezoidal map
         for trapezoid in self.trapezoids:
